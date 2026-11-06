@@ -6,11 +6,13 @@ const indexFromId=(value,prefix)=>{const match=String(value||"").match(new RegEx
 const row=(id,name,category,extra={})=>({id:Number(id),name:String(name||"Unknown item"),category,catalogKey:extra.catalogKey||"def:"+id,...extra});
 export async function loadOnlineCatalogue(fetcher=fetch){
  const entries=await Promise.all(Object.entries(SOURCES).map(async([key,file])=>{
-  const response=await fetcher(BASE+file,{cache:"force-cache"});
-  if(!response.ok)throw Error("Could not load "+file+" ("+response.status+")");
-  const data=await response.json();
-  if(!Array.isArray(data))throw Error("Unexpected data format in "+file);
-  return [key,data];
+  try{
+   const response=await fetcher(BASE+file,{cache:"force-cache"});
+   if(!response.ok)throw Error("Could not load "+file+" ("+response.status+")");
+   const data=await response.json();
+   if(!Array.isArray(data))throw Error("Unexpected data format in "+file);
+   return [key,data];
+  }catch(error){console.warn("Catalogue source unavailable:",file,error);return [key,[]]}
  }));
  const source=Object.fromEntries(entries),artwork={baseWeapons:{},crates:{},keys:{},musicKits:{},stickers:{},agents:{},patches:{}},skins={},items=[];
  const addArt=(target,key,item)=>{const image=item?.image;if(key!=null&&imageOk(image))target[String(key)]=image};
