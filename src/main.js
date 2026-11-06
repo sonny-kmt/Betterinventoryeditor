@@ -92,7 +92,8 @@ const weaponTypes=[
  {id:"shotguns",name:"Shotguns",icon:"💥"},
  {id:"machineguns",name:"Machine Guns",icon:"🔥"},
  {id:"pistols",name:"Pistols",icon:"🔫"},
- {id:"knives",name:"Knives",icon:"🔪"}
+ {id:"knives",name:"Knives",icon:"🔪"},
+ {id:"equipment",name:"Equipment",icon:"🧨"}
 ];
 const rootTypes=[
  {id:"weapons",name:"Weapons",icon:"🎯",description:"Choose a weapon type, then its finish"},
@@ -118,7 +119,7 @@ const isSkinBase=x=>!!x&&["rifles","snipers","smgs","shotguns","machineguns","pi
 const isSouvenir=x=>/souvenir/i.test(String(x.containerType||"")+" "+String(x.name||""));
 const isCase=x=>!isSouvenir(x)&&(!x.containerType||/case/i.test(x.containerType)||/case/i.test(x.name||""));
 const itemsFor=(category,subcategory)=>allCatalogItems().filter(x=>{
- if(category==="weapons")return !!subcategory&&x.category===subcategory;
+ if(category==="weapons")return !!subcategory&&(subcategory==="equipment"?(x.category==="other"&&String(x.className||"").startsWith("weapon_")):x.category===subcategory);
  if(category==="cases")return x.category==="cases"&&isCase(x);
  if(category==="souvenir")return x.category==="cases"&&isSouvenir(x);
  if(category==="extras"){
@@ -142,7 +143,7 @@ const renderBrowse=()=>{
   return;
  }
  if(!currentCategory){
-  $("#catalog-categories").innerHTML=rootTypes.map(x=>tile(x, x.id==="weapons"?all.filter(y=>weaponTypes.some(w=>w.id===y.category)).length:x.id==="extras"?all.filter(y=>["keys","patches","other"].includes(y.category)||(y.category==="cases"&&!isCase(y)&&!isSouvenir(y))).length:itemsFor(x.id).length)).join("");
+  $("#catalog-categories").innerHTML=rootTypes.map(x=>tile(x, x.id==="weapons"?all.filter(y=>weaponTypes.some(w=>w.id===y.category)||(y.category==="other"&&String(y.className||"").startsWith("weapon_"))).length:x.id==="extras"?all.filter(y=>["keys","patches","other"].includes(y.category)||(y.category==="cases"&&!isCase(y)&&!isSouvenir(y))).length:itemsFor(x.id).length)).join("");
   $("#catalog-results").innerHTML='<div class="catalog-hint">Select a category above to browse its items.</div>';
   return;
  }
