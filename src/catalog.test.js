@@ -10,7 +10,8 @@ const fixtures={
  "agents.json":[{id:"agent-4613",def_index:"4613",name:"Agent | Test",image:steam+"/agent"}],
  "patches.json":[{id:"patch-4609",def_index:"4609",name:"Patch | Test",image:steam+"/patch"}],
  "base_weapons.json":[{id:"base_weapon-weapon_deagle",def_index:1,name:"Desert Eagle",image:steam+"/weapon"}],
- "skins.json":[{id:"skin-test",legacy_model:true,weapon:{weapon_id:1},paint_index:"5",name:"Desert Eagle | Test",image:steam+"/skin"},{id:"skin-new",legacy_model:false,weapon:{weapon_id:1},paint_index:"6",name:"New model",image:steam+"/new"}]
+ "skins.json":[{id:"skin-test",legacy_model:true,weapon:{weapon_id:1},paint_index:"5",name:"Desert Eagle | Test",image:steam+"/skin"},{id:"skin-new",legacy_model:false,weapon:{weapon_id:1},paint_index:"6",name:"New model",image:steam+"/new"}],
+ "inventory.json":{crates:{"4001":{image:steam+"/case"},"4288":{image:steam+"/souvenir"}},keys:{"1203":{image:steam+"/key"}},music_kits:{"1":{image:steam+"/music"}},stickers:{"100":{image:steam+"/sticker"}},agents:{"4613":{image:steam+"/agent"}},patches:{"4609":{image:steam+"/patch"}},skins:{"1":{"5":{image:steam+"/skin"}}}}
 };
 const mockFetch=async url=>({ok:true,json:async()=>fixtures[url.split("/").pop()]});
 test("online catalogue includes cases, souvenir packages, keys, music kits, stickers and agents",async()=>{
