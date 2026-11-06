@@ -124,7 +124,7 @@ const itemsFor=(category,subcategory)=>allCatalogItems().filter(x=>{
  if(category==="souvenir")return x.category==="cases"&&isSouvenir(x);
  if(category==="extras"){
   if(subcategory==="containers")return x.category==="cases"&&!isCase(x)&&!isSouvenir(x);
-  return x.category===(subcategory||"other");
+  return subcategory==="other"?(x.category==="other"&&!String(x.className||"").startsWith("weapon_")):x.category===(subcategory||"other");
  }
  return x.category===category;
 });
@@ -143,7 +143,7 @@ const renderBrowse=()=>{
   return;
  }
  if(!currentCategory){
-  $("#catalog-categories").innerHTML=rootTypes.map(x=>tile(x, x.id==="weapons"?all.filter(y=>weaponTypes.some(w=>w.id===y.category)||(y.category==="other"&&String(y.className||"").startsWith("weapon_"))).length:x.id==="extras"?all.filter(y=>["keys","patches","other"].includes(y.category)||(y.category==="cases"&&!isCase(y)&&!isSouvenir(y))).length:itemsFor(x.id).length)).join("");
+  $("#catalog-categories").innerHTML=rootTypes.map(x=>tile(x, x.id==="weapons"?all.filter(y=>weaponTypes.some(w=>w.id===y.category)||(y.category==="other"&&String(y.className||"").startsWith("weapon_"))).length:x.id==="extras"?all.filter(y=>["keys","patches"].includes(y.category)||(y.category==="other"&&!String(y.className||"").startsWith("weapon_"))||(y.category==="cases"&&!isCase(y)&&!isSouvenir(y))).length:itemsFor(x.id).length)).join("");
   $("#catalog-results").innerHTML='<div class="catalog-hint">Select a category above to browse its items.</div>';
   return;
  }
