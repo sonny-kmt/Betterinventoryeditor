@@ -123,7 +123,7 @@ const agentTypes=[{id:"ct-agents",name:"CT Agents",description:"Counter-Terroris
 const randomItem=items=>items.length?items[Math.floor(Math.random()*items.length)]:null;
 const tileArtwork=(id,subcategory=null)=>{
  let candidates=[];
- if(id==="weapons"&&!subcategory){const ak=allCatalogItems().find(x=>x.category==="rifles"&&/^ak-?47\\b/i.test(x.name));return ak?catalogImage(ak.id,ak):""}
+ if(id==="weapons"&&!subcategory){const ak=allCatalogItems().find(x=>x.category==="rifles"&&/^ak-?47\b/i.test(x.name));return ak?catalogImage(ak.id,ak):""}
  if(id==="agents"&&subcategory)candidates=itemsFor(id,subcategory);
  else if(subcategory)candidates=itemsFor(id,subcategory);
  else candidates=itemsFor(id);
