@@ -59,7 +59,7 @@ function wire(p){if(p==="inventory"){const defaults=$("#edit-default-equips");if
  if(p==="settings"){$("#auto-case-key").onchange=e=>{S.autoAddCaseKey=e.target.checked};$("#schema-file").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const n=parseSchema(await f.text());$("#schema-status").textContent=n+" item definitions and "+S.paintKits.length+" paint kits loaded from "+f.name+".";toast("Game schema loaded")}catch(err){alert("Could not read schema: "+err.message)}};$("#language-file").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const n=parseLocalization(await f.text());$("#schema-status").textContent=n+" localized item names loaded.";toast("English localization loaded")}catch(err){alert("Could not read localization: "+err.message)}};$("#clear-data").onclick=()=>{if(confirm("Clear loaded inventory and config data from this page?")){S.items=[];S.root=[];S.defaultEquips=[];S.config=[];S.loaded=false;S.inventoryFile=false;S.configFile=false;S.dirtyI=S.dirtyC=false;render()}}}}
 function modal(html){$("#modal").innerHTML=`<div class="shade" id="shade"><div class="modal">${html}</div></div>`;$("#shade").onclick=e=>{if(e.target.id==="shade")$("#modal").innerHTML=""};$("#close")?.addEventListener("click",()=>$("#modal").innerHTML="")}
 function loadModal(){modal(`<div class="modal-head"><div><div class="eyebrow">IMPORT FILES</div><h2>Load your files</h2></div><button class="x" id="close">×</button></div><p class="muted">Select your inventory.txt file. config.txt is optional, but needed for profile editing.</p><label class="file">inventory.txt<input id="invfile" type="file" accept=".txt,text/plain"></label><label class="file">config.txt (optional)<input id="cfgfile" type="file" accept=".txt,text/plain"></label><button class="btn primary full" id="import">Import selected files</button>`);$("#import").onclick=async()=>{try{const f=$("#invfile").files[0],c=$("#cfgfile").files[0];if(!f)throw Error("Choose inventory.txt first.");parseInventory(await f.text());if(c){S.config=parseKV(await c.text());S.configFile=true;S.dirtyC=false}else{S.config=[];S.configFile=false}$("#modal").innerHTML="";S.page="inventory";render();toast("Files loaded successfully")}catch(e){alert("Unable to load files: "+e.message)}}}
-async function addModal(){S.selectedDef=null;S.page="add-item";render();$("#content").innerHTML=`<div class="add-page"><div class="toolbar add-toolbar"><div><div class="eyebrow">ITEM CATALOGUE</div><h2>Add inventory items</h2><p>Browse actual CS:GO Legacy artwork, choose a weapon finish, then add it to your inventory.</p></div><div class="actions"><button class="btn secondary" id="back-inventory">← Back to inventory</button></div></div><div class="add-catalog-panel"><input id="catalog-search" class="search wide" placeholder="Search by item name or definition index..."><div class="filters catalog-filters">${["all",...categories.map(c=>c.id)].map(x=>`<button data-cfilter="${x}" class="${S.catalogFilter===x?"selected":""}">${x==="all"?"All":categories.find(c=>c.id===x)?.name}</button>`).join("")}</div><div id="catalog-results" class="catalog-results"></div></div><div class="add-config-panel"><div class="custom-def"><input id="custom-def" type="number" min="1" placeholder="Or enter a custom def_index"><button class="btn secondary" id="choose-custom">Use definition</button></div><div id="chosen" class="chosen muted">Choose an item to configure it.</div><div id="case-key-note" class="muted tiny"></div><div id="case-quantity-wrap" class="field case-quantity" hidden><span>Number of cases to add (1–100)</span><input id="case-quantity" type="number" min="1" max="100" step="1" value="1"></div><div class="settings compact"><label class="field"><span>Quality</span><input id="new-quality" type="number" value="4"></label><label class="field"><span>Rarity</span><input id="new-rarity" type="number" value="3" min="0" max="99"></label><label class="field"><span>Level</span><input id="new-level" type="number" value="1"></label><label class="field"><span>Origin</span><input id="new-origin" type="number" value="24"></label></div><div class="settings compact"><label class="field"><span>Paint kit (optional)</span><select id="new-paint"><option value="">No paint</option>${S.paintKits.map(k=>`<option value="${k.id}">${esc(k.name)} · #${k.id}</option>`).join("")}</select></label><label class="field"><span>Wear (0–1)</span><input id="new-wear" type="number" min="0" max="1" step="0.000001" value="0.06"></label><label class="field"><span>Paint seed</span><input id="new-seed" type="number" min="0" max="1000" value="0"></label><label class="field"><span>StatTrak counter</span><input id="new-stattrak" type="number" min="0" value="0"></label></div><label class="check-field"><input id="new-is-stattrak" type="checkbox"> Add StatTrak attribute (quality 9)</label><button class="btn primary full" id="create-item" disabled>Add to inventory</button><p class="muted tiny">The built-in catalogue works without imports. Optionally load items_game.txt in Settings to supplement it with additional definitions and paint kits.</p></div></div>`;$("#back-inventory").onclick=()=>{S.page="inventory";render()};const search=$("#catalog-search");
+async function addModal(){S.selectedDef=null;S.page="add-item";render();$("#content").innerHTML=`<div class="add-page"><div class="toolbar add-toolbar"><div><div class="eyebrow">ITEM CATALOGUE</div><h2>Add inventory items</h2><p>Browse actual CS:GO Legacy artwork, choose a weapon finish, then add it to your inventory.</p></div><div class="actions"><button class="btn secondary" id="back-inventory">← Back to inventory</button></div></div><div class="add-catalog-panel"><input id="catalog-search" class="search wide" placeholder="Search by item name or definition index..."><div id="catalog-breadcrumb" class="catalog-breadcrumb"></div><div id="catalog-categories" class="category-tiles"></div><div id="catalog-results" class="catalog-results"></div></div><div class="add-config-panel"><div class="custom-def"><input id="custom-def" type="number" min="1" placeholder="Or enter a custom def_index"><button class="btn secondary" id="choose-custom">Use definition</button></div><div id="chosen" class="chosen muted">Choose an item to configure it.</div><div id="case-key-note" class="muted tiny"></div><div id="case-quantity-wrap" class="field case-quantity" hidden><span>Number of cases to add (1–100)</span><input id="case-quantity" type="number" min="1" max="100" step="1" value="1"></div><div class="settings compact"><label class="field"><span>Quality</span><input id="new-quality" type="number" value="4"></label><label class="field"><span>Rarity</span><input id="new-rarity" type="number" value="3" min="0" max="99"></label><label class="field"><span>Level</span><input id="new-level" type="number" value="1"></label><label class="field"><span>Origin</span><input id="new-origin" type="number" value="24"></label></div><div class="settings compact"><label class="field"><span>Paint kit (optional)</span><select id="new-paint"><option value="">No paint</option>${S.paintKits.map(k=>`<option value="${k.id}">${esc(k.name)} · #${k.id}</option>`).join("")}</select></label><label class="field"><span>Wear (0–1)</span><input id="new-wear" type="number" min="0" max="1" step="0.000001" value="0.06"></label><label class="field"><span>Paint seed</span><input id="new-seed" type="number" min="0" max="1000" value="0"></label><label class="field"><span>StatTrak counter</span><input id="new-stattrak" type="number" min="0" value="0"></label></div><label class="check-field"><input id="new-is-stattrak" type="checkbox"> Add StatTrak attribute (quality 9)</label><button class="btn primary full" id="create-item" disabled>Add to inventory</button><p class="muted tiny">The built-in catalogue works without imports. Optionally load items_game.txt in Settings to supplement it with additional definitions and paint kits.</p></div></div>`;$("#back-inventory").onclick=()=>{S.page="inventory";render()};const search=$("#catalog-search");
 const allCatalogItems=()=>{const map=new Map();for(const item of [...defs.values(),...S.schemaItems,...S.onlineCatalogItems]){const key=item.catalogKey||"def:"+item.id;map.set(key,{...item,catalogKey:key})}return [...map.values()]};
 const selectedCatalogItem=()=>allCatalogItems().find(x=>x.catalogKey===S.selectedDef)||(S.selectedDef==null?null:{id:Number(String(S.selectedDef).replace(/^def:/,"")),name:"Custom definition #"+String(S.selectedDef).replace(/^def:/,""),category:"other",defaultQuality:4,defaultRarity:3,catalogKey:S.selectedDef});
 let activeWeapon=null,activeSkins=[],selectedSkin=null;
@@ -67,7 +67,142 @@ const isSkinBase=x=>!!x&&["rifles","snipers","smgs","shotguns","machineguns","pi
 const renderWeaponSkins=async weapon=>{activeWeapon=weapon;selectedSkin=null;$("#catalog-results").innerHTML='<div class="empty">Loading CS:GO Legacy finishes…</div>';try{const all=await loadLegacySkins();const matching=all.filter(s=>Number(s.weapon?.weapon_id)===Number(weapon.id)&&s.paint_index!=null);const unique=new Map();for(const skin of matching){const id=Number(skin.paint_index);if(!Number.isInteger(id)||id<1)continue;const previous=unique.get(id);if(!previous||(!skin.stattrak&&!skin.souvenir))unique.set(id,skin)}activeSkins=[...unique.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name)));const imageUrl=s=>S.onlineCatalogueData?.skins?.[Number(s.weapon?.weapon_id)+":"+Number(s.paint_index)]||(typeof s.image==="string"&&s.image.startsWith("https://community.akamai.steamstatic.com/economy/image/")?s.image:"");$("#catalog-results").innerHTML='<button class="catalog-row skin-back" data-skin-back="1"><span class="row-arrow">←</span><span><b>Back to weapons</b><small>'+esc(weapon.name)+'</small></span></button><button class="catalog-row" data-skin="vanilla"><span class="catalog-icon">'+(catalogImage(weapon.id,weapon)?'<img src="'+esc(catalogImage(weapon.id,weapon))+'" alt="CS:GO '+esc(weapon.name)+'" loading="lazy" onerror="this.remove()">':'')+'</span><span><b>'+esc(weapon.name)+' (Vanilla)</b><small>No paint finish</small></span><span class="row-arrow">＋</span></button>'+activeSkins.map((s,i)=>'<button class="catalog-row skin-row" data-skin="'+i+'"><span class="skin-thumb">'+(imageUrl(s)?'<img src="'+esc(imageUrl(s))+'" alt="" loading="lazy" onerror="this.remove()">':'')+'</span><span><b>'+esc(s.name)+'</b><small>'+esc(s.rarity?.name||"Finish")+' · Paint kit #'+Number(s.paint_index)+'</small></span><span class="row-arrow">＋</span></button>').join("")+(activeSkins.length?"":'<div class="empty">No Legacy finishes were found for this weapon in the online catalogue.</div>')}catch(error){activeSkins=[];$("#catalog-results").innerHTML='<button class="catalog-row skin-back" data-skin-back="1"><span class="row-arrow">←</span><span><b>Back to weapons</b></span></button><div class="empty">Could not load the skin catalogue. Check your connection and try again. '+esc(error.message)+'</div>'}};
 const chooseSkin=skin=>{const paintId=skin?Number(skin.paint_index):0;selectedSkin=skin||null;S.selectedDef=activeWeapon.catalogKey||"def:"+activeWeapon.id;const select=$("#new-paint");if(paintId>0&&!Array.from(select.options).some(o=>Number(o.value)===paintId)){const option=document.createElement("option");option.value=String(paintId);option.textContent=(skin.name||"Selected finish")+" · #"+paintId;select.append(option)}select.value=paintId?String(paintId):"";$("#new-quality").value="4";const rarity=String(skin?.rarity?.id||"").toLowerCase();const rarityValue=rarity.includes("contraband")?7:rarity.includes("covert")?6:rarity.includes("classified")?5:rarity.includes("restricted")?4:rarity.includes("milspec")||rarity.includes("mil_spec")||rarity.includes("mil-spec")?3:rarity.includes("industrial")?2:rarity.includes("consumer")?1:3;$("#new-rarity").value=String(rarityValue);$("#new-wear").value=String(skin?.min_float??0.06);$("#chosen").textContent=skin?"Selected: "+skin.name+" · "+activeWeapon.name+" (paint kit #"+paintId+")":"Selected: "+activeWeapon.name+" (vanilla)";$("#case-key-note").textContent=skin?"The selected finish, wear range and artwork are from the CS:GO Legacy-compatible skin catalogue.":"Vanilla finish selected.";$("#create-item").disabled=false;$("#create-item").textContent="Add "+(skin?skin.name:activeWeapon.name)+" to inventory";}
 const matchingCaseKey=()=>{const x=selectedCatalogItem();return x?.category==="cases"&&(!x.containerType||x.containerType==="Case")?findCaseKey(x,allCatalogItems()):null};
-const results=()=>{const q=search.value.toLowerCase();const all=allCatalogItems();const rows=all.filter(x=>(S.catalogFilter==="all"||x.category===S.catalogFilter)&&(`${x.name} ${x.className||""} ${x.id} ${x.kitIndex??""} ${x.containerType||""}`.toLowerCase().includes(q)));$("#catalog-results").innerHTML=rows.map(x=>{const art=catalogImage(x.id,x);return `<button class="catalog-row ${S.selectedDef===x.catalogKey?"chosen-row":""}" data-catalog-key="${esc(x.catalogKey)}"><span class="catalog-icon">${art?`<img src="${esc(art)}" alt="CS:GO ${esc(x.name)}" loading="lazy" onerror="this.remove()">`:""}</span><span><b>${esc(x.name)}</b><small>${esc(categories.find(c=>c.id===x.category)?.name||"Other")}${x.containerType?" · "+esc(x.containerType):""} · #${x.id}</small></span><span class="row-arrow">＋</span></button>`}).join("")||'<div class="empty">No matching built-in items. You can optionally import items_game.txt in Settings or enter a custom definition below.</div>'};search.oninput=results;document.querySelectorAll("[data-cfilter]").forEach(b=>b.onclick=()=>{S.catalogFilter=b.dataset.cfilter;document.querySelectorAll("[data-cfilter]").forEach(x=>x.classList.toggle("selected",x===b));results()});$("#catalog-results").onclick=e=>{if(e.target.closest("[data-skin-back]")){activeWeapon=null;results();return}const skinButton=e.target.closest("[data-skin]");if(skinButton){if(!activeWeapon)return;chooseSkin(skinButton.dataset.skin==="vanilla"?null:activeSkins[Number(skinButton.dataset.skin)]);return}const b=e.target.closest("[data-catalog-key]");if(!b)return;const clicked=allCatalogItems().find(x=>x.catalogKey===b.dataset.catalogKey);if(isSkinBase(clicked)){renderWeaponSkins(clicked);return}selectedSkin=null;S.selectedDef=clicked.catalogKey;const x=selectedCatalogItem(),key=matchingCaseKey();$("#chosen").textContent="Selected: "+x.name+" (definition "+x.id+")";$("#case-quantity-wrap").hidden=x.category!=="cases";$("#case-quantity").value="1";$("#case-key-note").textContent=x.category==="cases"?(x.containerType&&x.containerType!=="Case"?"This container does not require a key.":S.autoAddCaseKey?(key?"Matching key will also be added: "+key.name+" (#"+key.id+").":"No matching key definition was found."):"Automatic case-key addition is switched off in Settings."):"";$("#new-quality").value=String(x.defaultQuality??4);$("#new-rarity").value=String(x.defaultRarity??3);$("#create-item").disabled=false;$("#create-item").textContent=x.category==="cases"&&key&&S.autoAddCaseKey?"Add case + matching key":"Add to inventory";results()};$("#catalog-results").innerHTML='<div class="empty">Loading official CS:GO item artwork…</div>';await loadDefaultIconManifest(false);results();$("#choose-custom").onclick=()=>{const id=+$("#custom-def").value;if(!Number.isInteger(id)||id<1){alert("Enter a valid definition index.");return}S.selectedDef="def:"+id;$("#chosen").textContent="Custom definition selected: #"+id;$("#case-key-note").textContent="";$("#create-item").textContent="Add to inventory";$("#create-item").disabled=false};$("#create-item").onclick=()=>{
+const weaponTypes=[
+ {id:"rifles",name:"Rifles",icon:"🎯"},
+ {id:"snipers",name:"Sniper Rifles",icon:"🔭"},
+ {id:"smgs",name:"SMGs",icon:"⚡"},
+ {id:"shotguns",name:"Shotguns",icon:"💥"},
+ {id:"machineguns",name:"Machine Guns",icon:"🔥"},
+ {id:"pistols",name:"Pistols",icon:"🔫"},
+ {id:"knives",name:"Knives",icon:"🔪"}
+];
+const rootTypes=[
+ {id:"weapons",name:"Weapons",icon:"🎯",description:"Choose a weapon type, then its finish"},
+ {id:"cases",name:"Cases",icon:"📦",description:"Weapon cases and standard containers"},
+ {id:"souvenir",name:"Souvenir Packages",icon:"🎁",description:"Tournament souvenir packages"},
+ {id:"gloves",name:"Gloves",icon:"🧤",description:"Glove models and finishes"},
+ {id:"agents",name:"Agents",icon:"🪖",description:"CT and T agent models"},
+ {id:"music",name:"Music Kits",icon:"🎵",description:"Equip a music kit"},
+ {id:"stickers",name:"Stickers",icon:"🏷️",description:"Stickers and capsules"},
+ {id:"extras",name:"Keys & Extras",icon:"🗝️",description:"Keys, patches and other containers"}
+];
+const extraTypes=[
+ {id:"keys",name:"Keys",icon:"🗝️"},
+ {id:"patches",name:"Patches",icon:"🧵"},
+ {id:"containers",name:"Other Containers",icon:"🧰"},
+ {id:"other",name:"Other Items",icon:"◇"}
+];
+let currentCategory=null,currentSubcategory=null;
+const allCatalogItems=()=>{const map=new Map();for(const item of [...defs.values(),...S.schemaItems,...S.onlineCatalogItems]){const key=item.catalogKey||"def:"+item.id;map.set(key,{...item,catalogKey:key})}return [...map.values()]};
+const selectedCatalogItem=()=>allCatalogItems().find(x=>x.catalogKey===S.selectedDef)||(S.selectedDef==null?null:{id:Number(String(S.selectedDef).replace(/^def:/,"")),name:"Custom definition #"+String(S.selectedDef).replace(/^def:/,""),category:"other",defaultQuality:4,defaultRarity:3,catalogKey:S.selectedDef});
+let activeWeapon=null,activeSkins=[],selectedSkin=null;
+const isSkinBase=x=>!!x&&["rifles","snipers","smgs","shotguns","machineguns","pistols","knives","gloves"].includes(x.category);
+const isSouvenir=x=>/souvenir/i.test(String(x.containerType||"")+" "+String(x.name||""));
+const isCase=x=>!isSouvenir(x)&&(!x.containerType||/case/i.test(x.containerType)||/case/i.test(x.name||""));
+const itemsFor=(category,subcategory)=>allCatalogItems().filter(x=>{
+ if(category==="weapons")return !!subcategory&&x.category===subcategory;
+ if(category==="cases")return x.category==="cases"&&isCase(x);
+ if(category==="souvenir")return x.category==="cases"&&isSouvenir(x);
+ if(category==="extras"){
+  if(subcategory==="containers")return x.category==="cases"&&!isCase(x)&&!isSouvenir(x);
+  return x.category===(subcategory||"other");
+ }
+ return x.category===category;
+});
+const tile=(item,count)=>'<button class="category-tile" data-category-tile="'+esc(item.id)+'"><span class="category-icon">'+item.icon+'</span><b>'+esc(item.name)+'</b><small>'+esc(item.description||"Browse "+item.name.toLowerCase())+'</small><span class="category-count">'+count+' items</span><span class="category-arrow">›</span></button>';
+const renderBrowse=()=>{
+ const q=search.value.trim().toLowerCase(),all=allCatalogItems();
+ const crumb=[];
+ if(currentCategory){const root=rootTypes.find(x=>x.id===currentCategory);if(root)crumb.push(root.name)}
+ if(currentSubcategory){const sub=[...weaponTypes,...extraTypes].find(x=>x.id===currentSubcategory);if(sub)crumb.push(sub.name)}
+ $("#catalog-breadcrumb").innerHTML=(currentCategory?'<button class="breadcrumb-back" data-browse-back="1">← '+(currentSubcategory?"Back to "+(rootTypes.find(x=>x.id===currentCategory)?.name||"category"):"All categories")+'</button>':"")+'<span>'+(q?"Search results":crumb.join(" / ")||"Choose a category")+'</span>';
+ $("#catalog-categories").hidden=!!q;
+ $("#catalog-results").hidden=false;
+ if(q){
+  const matches=all.filter(x=>(x.name+" "+x.className+" "+x.id+" "+(x.kitIndex??"")+" "+(x.containerType||"")).toLowerCase().includes(q));
+  $("#catalog-results").innerHTML=matches.map(x=>catalogRow(x,true)).join("")||'<div class="empty">No items match that search.</div>';
+  return;
+ }
+ if(!currentCategory){
+  $("#catalog-categories").innerHTML=rootTypes.map(x=>tile(x, x.id==="weapons"?all.filter(y=>weaponTypes.some(w=>w.id===y.category)).length:x.id==="extras"?all.filter(y=>["keys","patches","other"].includes(y.category)||(y.category==="cases"&&!isCase(y)&&!isSouvenir(y))).length:itemsFor(x.id).length)).join("");
+  $("#catalog-results").innerHTML='<div class="catalog-hint">Select a category above to browse its items.</div>';
+  return;
+ }
+ if((currentCategory==="weapons"||currentCategory==="extras")&&!currentSubcategory){
+  const subs=currentCategory==="weapons"?weaponTypes:extraTypes;
+  $("#catalog-categories").innerHTML=subs.map(x=>tile(x,itemsFor(currentCategory,x.id).length)).join("");
+  $("#catalog-results").innerHTML='<div class="catalog-hint">Choose a subcategory to see the available items.</div>';
+  return;
+ }
+ $("#catalog-categories").hidden=true;
+ const rows=itemsFor(currentCategory,currentSubcategory);
+ $("#catalog-results").innerHTML=rows.map(x=>catalogRow(x,false)).join("")||'<div class="empty">No items are available in this category yet.</div>';
+};
+function catalogRow(x,showCategory){
+ const art=catalogImage(x.id,x);
+ const label=showCategory?(categories.find(c=>c.id===x.category)?.name||x.category):"";
+ return '<button class="catalog-row" data-catalog-key="'+esc(x.catalogKey)+'"><span class="catalog-icon">'+(art?'<img src="'+esc(art)+'" alt="" loading="lazy" onerror="this.remove()">':iconFor(x.category))+'</span><span><b>'+esc(x.name)+'</b><small>'+esc([label,x.containerType,x.kitIndex!=null?"Kit #"+x.kitIndex:"Def #"+x.id].filter(Boolean).join(" · "))+'</small></span><span class="row-arrow">＋</span></button>';
+}
+const renderWeaponSkins=async weapon=>{
+ activeWeapon=weapon;selectedSkin=null;$("#catalog-categories").hidden=true;
+ $("#catalog-breadcrumb").innerHTML='<button class="breadcrumb-back" data-skin-back="1">← Back to '+esc(weaponTypes.find(x=>x.id===weapon.category)?.name||"Weapons")+'</button><span>'+esc(weapon.name)+" / Finishes"+'</span>';
+ $("#catalog-results").innerHTML='<div class="empty">Loading CS:GO Legacy finishes…</div>';
+ try{
+  const all=await loadLegacySkins();
+  const matching=all.filter(s=>Number(s.weapon?.weapon_id)===Number(weapon.id)&&s.paint_index!=null);
+  const unique=new Map();
+  for(const skin of matching){const id=Number(skin.paint_index);if(!Number.isInteger(id)||id<1)continue;const previous=unique.get(id);if(!previous||(!skin.stattrak&&!skin.souvenir))unique.set(id,skin)}
+  activeSkins=[...unique.values()].sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const imageUrl=s=>S.onlineCatalogueData?.skins?.[Number(s.weapon?.weapon_id)+":"+Number(s.paint_index)]||(typeof s.image==="string"&&s.image.startsWith("https://community.akamai.steamstatic.com/economy/image/")?s.image:"");
+  $("#catalog-results").innerHTML='<button class="catalog-row" data-skin="vanilla"><span class="catalog-icon">'+(catalogImage(weapon.id,weapon)?'<img src="'+esc(catalogImage(weapon.id,weapon))+'" alt="" loading="lazy" onerror="this.remove()">':"")+'</span><span><b>'+esc(weapon.name)+' (Vanilla)</b><small>No paint finish</small></span><span class="row-arrow">＋</span></button>'+activeSkins.map((skin,i)=>'<button class="catalog-row skin-row" data-skin="'+i+'"><span class="skin-thumb">'+(imageUrl(skin)?'<img src="'+esc(imageUrl(skin))+'" alt="" loading="lazy" onerror="this.remove()">':"")+'</span><span><b>'+esc(skin.name)+'</b><small>'+esc(skin.rarity?.name||"Finish")+' · Paint kit #'+Number(skin.paint_index)+'</small></span><span class="row-arrow">＋</span></button>').join("")+(activeSkins.length?"":'<div class="empty">No Legacy finishes were found for this weapon.</div>');
+ }catch(error){activeSkins=[];$("#catalog-results").innerHTML='<div class="empty">Could not load the skin catalogue. '+esc(error.message)+'</div>'}
+};
+const chooseSkin=skin=>{
+ const paintId=skin?Number(skin.paint_index):0;selectedSkin=skin||null;S.selectedDef=activeWeapon.catalogKey||"def:"+activeWeapon.id;
+ const select=$("#new-paint");
+ if(paintId>0&&!Array.from(select.options).some(o=>Number(o.value)===paintId)){const option=document.createElement("option");option.value=String(paintId);option.textContent=(skin.name||"Selected finish")+" · #"+paintId;select.append(option)}
+ select.value=paintId?String(paintId):"";$("#new-quality").value="4";
+ const rarity=String(skin?.rarity?.id||"").toLowerCase();
+ const rarityValue=rarity.includes("contraband")?7:rarity.includes("covert")?6:rarity.includes("classified")?5:rarity.includes("restricted")?4:rarity.includes("milspec")||rarity.includes("mil_spec")||rarity.includes("mil-spec")?3:rarity.includes("industrial")?2:rarity.includes("consumer")?1:3;
+ $("#new-rarity").value=String(rarityValue);$("#new-wear").value=String(skin?.min_float??0.06);
+ $("#chosen").textContent=skin?"Selected: "+skin.name+" · "+activeWeapon.name+" (paint kit #"+paintId+")":"Selected: "+activeWeapon.name+" (vanilla)";
+ $("#case-key-note").textContent=skin?"Legacy finish selected.":"Vanilla finish selected.";
+ $("#create-item").disabled=false;$("#create-item").textContent="Add "+(skin?skin.name:activeWeapon.name)+" to inventory";
+};
+const matchingCaseKey=()=>{const x=selectedCatalogItem();return x?.category==="cases"&&(!x.containerType||x.containerType==="Case")?findCaseKey(x,allCatalogItems()):null};
+search.oninput=renderBrowse;
+$("#catalog-categories").onclick=e=>{
+ const button=e.target.closest("[data-category-tile]");if(!button)return;
+ const id=button.dataset.categoryTile;
+ if(rootTypes.some(x=>x.id===id)){currentCategory=id;currentSubcategory=null}
+ else currentSubcategory=id;
+ renderBrowse();
+};
+$("#catalog-breadcrumb").onclick=e=>{
+ if(e.target.closest("[data-skin-back]")){renderBrowse();return}
+ if(!e.target.closest("[data-browse-back]"))return;
+ if(currentSubcategory)currentSubcategory=null;else currentCategory=null;
+ renderBrowse();
+};
+$("#catalog-results").onclick=e=>{
+ const skinButton=e.target.closest("[data-skin]");
+ if(skinButton){if(activeWeapon)chooseSkin(skinButton.dataset.skin==="vanilla"?null:activeSkins[Number(skinButton.dataset.skin)]);return}
+ const back=e.target.closest("[data-skin-back]");if(back){renderBrowse();return}
+ const button=e.target.closest("[data-catalog-key]");if(!button)return;
+ const clicked=allCatalogItems().find(x=>x.catalogKey===button.dataset.catalogKey);if(!clicked)return;
+ if(isSkinBase(clicked)){renderWeaponSkins(clicked);return}
+ selectedSkin=null;S.selectedDef=clicked.catalogKey;
+ const x=selectedCatalogItem(),key=matchingCaseKey();
+ $("#chosen").textContent="Selected: "+x.name+" (definition "+x.id+")";
+ $("#case-quantity-wrap").hidden=x.category!=="cases"||!isCase(x);
+ $("#case-quantity").value="1";
+ $("#case-key-note").textContent=x.category==="cases"?(isSouvenir(x)?"Souvenir packages do not require a key.":isCase(x)?(S.autoAddCaseKey?(key?"Matching key will also be added: "+key.name+" (#"+key.id+").":"No matching key definition was found."):"Automatic case-key addition is switched off in Settings."):"This container does not require a key."):"";
+ $("#new-quality").value=String(x.defaultQuality??4);$("#new-rarity").value=String(x.defaultRarity??3);
+ $("#create-item").disabled=false;$("#create-item").textContent=x.category==="cases"&&isCase(x)&&key&&S.autoAddCaseKey?"Add case + matching key":"Add to inventory";
+};
+$("#catalog-results").innerHTML='<div class="empty">Loading official CS:GO item artwork…</div>';
+await loadDefaultIconManifest(false);renderBrowse();
+$("#choose-custom").onclick=()=>{const id=+$("#custom-def").value;if(!Number.isInteger(id)||id<1){alert("Enter a valid definition index.");return}S.selectedDef="def:"+id;$("#chosen").textContent="Custom definition selected: #"+id;$("#case-key-note").textContent="";$("#create-item").textContent="Add to inventory";$("#create-item").disabled=false};$("#create-item").onclick=()=>{
   const selected=selectedCatalogItem();if(!selected)return;
   const quantity=selected.category==="cases"?Number($("#case-quantity").value):1;if(!Number.isInteger(quantity)||quantity<1||quantity>100){alert("Choose a whole number of cases between 1 and 100.");return}
   const makeItem=(definition,lowId,overrides={})=>({lowId,inventory:0,def_index:definition.defIndex??definition.id,level:1,quality:definition.defaultQuality??4,flags:0,origin:24,in_use:0,rarity:definition.defaultRarity??(definition.category==="keys"?1:3),attributes:[],equipped_state:[],_pairs:[],...overrides});
