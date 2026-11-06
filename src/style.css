@@ -67,3 +67,35 @@
 .item-select input{width:17px;height:17px;accent-color:#8194ff}
 .item-selected{border-color:#7188ff;box-shadow:0 0 0 1px #7188ff55,0 8px 25px #536cff18}
 @media(max-width:640px){.bulk-actions{align-items:flex-start;flex-direction:column}.bulk-actions>div{width:100%}.bulk-actions .btn{flex:1}}
+
+
+/* Dedicated item catalogue page */
+.add-page{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.85fr);gap:22px;margin:28px 0 40px;align-items:start}
+.add-toolbar{grid-column:1/-1;margin:0 0 2px}
+.add-toolbar h2{font-size:25px}
+.add-catalog-panel,.add-config-panel{min-width:0;background:linear-gradient(145deg,#151c29,#111722);border:1px solid #29364a;border-radius:15px;padding:22px}
+.add-catalog-panel .search.wide{margin:0 0 18px;padding:14px 16px;font-size:14px}
+.add-catalog-panel .catalog-filters{max-height:none;overflow:visible;gap:9px;margin-bottom:18px}
+.add-catalog-panel .catalog-filters button{padding:9px 13px;font-size:11px}
+.add-catalog-panel .catalog-results{height:min(68vh,760px);min-height:480px;overflow:auto;padding:10px;background:#0e1521}
+.add-catalog-panel .catalog-row{min-height:78px;padding:12px;gap:15px}
+.add-catalog-panel .catalog-icon{width:58px;height:58px;flex:0 0 58px}
+.add-catalog-panel .catalog-icon img{width:52px;height:52px;object-fit:contain}
+.add-catalog-panel .catalog-row b{font-size:14px}
+.add-catalog-panel .catalog-row small{font-size:11px}
+.add-catalog-panel .skin-row{min-height:94px}
+.add-catalog-panel .skin-thumb{width:100px;height:70px;flex-basis:100px}
+.add-catalog-panel .skin-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.add-config-panel{position:sticky;top:22px}
+.add-config-panel .chosen{font-size:13px;padding:14px;margin-top:16px}
+.add-config-panel .settings{gap:14px}
+.add-config-panel .custom-def{display:flex;gap:9px}
+.add-config-panel .custom-def input{min-width:0;flex:1;background:#101722;border:1px solid #293447;border-radius:8px;padding:12px;color:#eef2fb}
+.add-config-panel .field input,.add-config-panel .field select{min-height:44px}
+.add-config-panel .btn.full{min-height:48px}
+.item[data-select-card]{cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.item[data-select-card]:hover{border-color:#7188ff;transform:translateY(-2px)}
+.item[data-select-card]:focus-visible{outline:2px solid #91a2ff;outline-offset:3px}
+.item[data-select-card] .visual{cursor:pointer}
+@media(max-width:1050px){.add-page{grid-template-columns:1fr}.add-toolbar{grid-column:auto}.add-config-panel{position:static}.add-catalog-panel .catalog-results{height:55vh;min-height:360px}}
+@media(max-width:600px){.add-page{gap:14px;margin-top:18px}.add-catalog-panel,.add-config-panel{padding:14px}.add-toolbar .actions{width:auto}.add-toolbar .btn{white-space:nowrap}.add-catalog-panel .catalog-results{min-height:300px;height:48vh}.add-catalog-panel .catalog-icon{width:48px;height:48px;flex-basis:48px}}
