@@ -7,7 +7,7 @@ import {loadOnlineCatalogue,inventoryArtwork} from "./catalog.js";
 
 const $=s=>document.querySelector(s);
 const clone=x=>JSON.parse(JSON.stringify(x));
-const S={root:[],config:[],items:[],defaultEquips:[],schemaItems:[],paintKits:[],translations:{},iconManifest:null,iconManifestPromise:null,onlineCatalogueData:null,onlineCataloguePromise:null,onlineCatalogItems:[],loaded:false,inventoryFile:false,configFile:false,dirtyI:false,dirtyC:false,conn:null,page:"inventory",filter:"all",search:"",catalogFilter:"all",catalogSearch:"",selectedDef:null,liveMode:false,autoAddCaseKey:true,selectionMode:false,selectedItems:new Set()};
+const S={root:[],config:[],items:[],defaultEquips:[],schemaItems:[],paintKits:[],translations:{},iconManifest:null,iconManifestPromise:null,legacySkins:null,legacySkinsPromise:null,economyImagesByKit:{},caseImagesByDef:{},caseImagesByName:{},caseImagesPromise:null,keyImages:{},economyImagesByDef:{},economyImagesPromise:null,onlineCatalogueData:null,onlineCataloguePromise:null,onlineCatalogItems:[],loaded:false,inventoryFile:false,configFile:false,dirtyI:false,dirtyC:false,conn:null,page:"inventory",filter:"all",search:"",catalogFilter:"all",catalogSearch:"",selectedDef:null,liveMode:false,autoAddCaseKey:true,selectionMode:false,selectedItems:new Set()};
 const defs=new Map(catalogData.items.map(([id,className,name,category])=>[id,{id,className,name,category}]));
 const categories=catalogData.categories;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -28,7 +28,7 @@ function iconFor(category){return categories.find(c=>c.id===category)?.emoji||"â
 function itemIcon(item){const category=itemCategory(item);return S.onlineCatalogueData?inventoryArtwork({...item,category},item.attributes||[],S.onlineCatalogueData):""}
 function catalogImage(id,item=null){if(item?.artwork)return item.artwork;if(!S.onlineCatalogueData)return "";const category=item?.category||defs.get(Number(id))?.category;return inventoryArtwork({def_index:item?.defIndex??id,category},item?.kitIndex!=null?[{def_index:category==="music"?166:113,value:String(item.kitIndex)}]:[],S.onlineCatalogueData)}
 async function loadDefaultIconManifest(refreshInventory=true){
- if(!S.onlineCataloguePromise)S.onlineCataloguePromise=loadOnlineCatalogue().then(data=>{S.onlineCatalogueData=data;S.onlineCatalogItems=data.items;return data}).catch(error=>{S.onlineCataloguePromise=null;console.warn("Complete CS:GO item catalogue could not be loaded:",error);return null});
+ if(!S.onlineCataloguePromise)S.onlineCataloguePromise=loadOnlineCatalogue().then(data=>{S.onlineCatalogueData=data;S.onlineCatalogItems=data.items;S.legacySkins=data.legacySkins;return data}).catch(error=>{S.onlineCataloguePromise=null;console.warn("Complete CS:GO item catalogue could not be loaded:",error);return null});
  await S.onlineCataloguePromise;
  if(!S.iconManifest&&!S.iconManifestPromise)S.iconManifestPromise=fetch("/icons.json",{cache:"force-cache"}).then(response=>{if(!response.ok)throw Error("Artwork manifest unavailable");return response.text()}).then(parseIconManifest).catch(error=>{S.iconManifestPromise=null;console.warn("Default item artwork could not be loaded:",error);return 0});
  if(S.iconManifestPromise)await S.iconManifestPromise;
