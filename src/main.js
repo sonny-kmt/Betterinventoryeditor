@@ -126,9 +126,11 @@ const tileArtwork=(id,subcategory=null)=>{
  if(id==="weapons"&&!subcategory){const ak=allCatalogItems().find(x=>x.category==="rifles"&&/^ak-?47\b/i.test(x.name));return ak?catalogImage(ak.id,ak):""}
  if(id==="agents"&&subcategory)candidates=itemsFor(id,subcategory);
  else if(subcategory)candidates=itemsFor(id,subcategory);
+ else if(id==="extras")candidates=allCatalogItems().filter(x=>x.category==="keys");
  else candidates=itemsFor(id);
- const item=randomItem(candidates.filter(x=>catalogImage(x.id,x)));
- return item?catalogImage(item.id,item):"";
+ const item=randomItem(candidates.filter(x=>catalogImage(x.id,x)||(id==="weapons"&&subcategory==="equipment"&&S.onlineCatalogueData?.artwork?.baseWeapons?.[String(x.id)])));
+ if(!item)return "";
+ return catalogImage(item.id,item)||S.onlineCatalogueData?.artwork?.baseWeapons?.[String(item.id)]||"";
 };
 const itemsFor=(category,subcategory)=>allCatalogItems().filter(x=>{
  if(category==="agents"){if(!subcategory)return x.category==="agents";return x.category==="agents"&&agentTeam(x)===(subcategory==="ct-agents"?"ct":"t")}
