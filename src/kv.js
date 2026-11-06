@@ -1,6 +1,6 @@
 // Valve KeyValues text parser/serializer. Pairs are arrays so duplicate keys and source order survive.
 export function parseKV(source){
-  const tokens=[];let i=0;
+  const tokens=[];let i=source.charCodeAt(0)===0xfeff?1:0;
   while(i<source.length){
     const c=source[i];
     if(/\s/.test(c)){i++;continue}
