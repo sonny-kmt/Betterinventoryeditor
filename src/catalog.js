@@ -25,7 +25,7 @@ export async function loadOnlineCatalogue(fetcher=fetch){
  for(const item of source.patches){const id=number(item.def_index??indexFromId(item.id,"patch"));addArt(artwork.patches,id,item);if(id!=null)items.push(row(id,item.name,"patches",{catalogKey:"def:"+id,artwork:imageOk(item.image)?item.image:""}))}
  for(const item of source.skins){if(item?.legacy_model!==true)continue;const weapon=number(item.weapon?.weapon_id),paint=number(item.paint_index);if(weapon==null||paint==null)continue;addArt(skins,weapon+":"+paint,item)}
  const unique=new Map();for(const item of items)unique.set(item.catalogKey,item);
- return {items:[...unique.values()],artwork,skins,counts:Object.fromEntries(Object.entries(artwork).map(([key,value])=>[key,Object.keys(value).length]))};
+ return {items:[...unique.values()],artwork,skins,legacySkins:source.skins.filter(item=>item?.legacy_model===true),counts:Object.fromEntries(Object.entries(artwork).map(([key,value])=>[key,Object.keys(value).length]))};
 }
 export function inventoryArtwork(item,attributes,library){
  const category=item?.category,def=String(item?.def_index??item?.id??""),attrs=new Map((attributes||[]).map(a=>[Number(a.def_index),a.value]));
