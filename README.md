@@ -1,43 +1,67 @@
 # Better Inventory Editor
 
-A Vercel-ready browser editor for the CS:GO Legacy inventory format used by [mikkokko/csgo_gc](https://github.com/mikkokko/csgo_gc).
+A browser-based CS:GO Legacy inventory and profile editor for the file format used by [mikkokko/csgo_gc](https://github.com/mikkokko/csgo_gc).
 
-## Development
+## Run locally
 
 - Install Node.js 20 or newer.
 - Run `npm install`.
 - Run `npm run dev`.
-- Run `npm run build` to create the production build in `dist/`.
+- Run `npm test` for parser/protocol tests.
+- Run `npm run build` for a production build in `dist/`.
 
-## Vercel
+## Deploy to Vercel
 
-Import this repository into Vercel. Use the Vite framework preset, with `npm run build` as the build command and `dist` as the output directory.
+Import this repository into Vercel and use:
 
-## Current functionality
+- Framework preset: **Vite**
+- Build command: `npm run build`
+- Output directory: `dist`
 
-- Import `inventory.txt` and optionally `config.txt` locally in the browser.
-- Parse and export the KeyValues inventory format.
-- Edit item definition index, quality, rarity, level, origin and flags.
-- Edit the main player/profile settings represented in `examples/config.txt`.
-- Connect to the local `csgo_gc` inventory editor WebSocket endpoint (protocol v1, `ws://127.0.0.1:13001`).
-- Receive inventory snapshots and item create/modify/destroy notifications.
-- Send item create/modify/destroy commands while connected.
+Every push to `main` will trigger a new Vercel deployment if the repository is connected.
 
-## Live connection setup
+## Inventory editor
 
-In the local `csgo_gc` `config.txt`, set `inventory_editor_origin` to the exact origin of the deployed site, for example:
+- Import `inventory.txt` locally.
+- Search and filter the built-in starter item catalogue by category.
+- Add known items or enter a custom definition index.
+- Edit inventory, quality, rarity, level, flags, origin, in-use state, attributes and equipped-state entries.
+- Edit default equipment assignments.
+- Export a new `inventory.txt` without uploading the source file.
+- Preserve unedited/unknown KeyValues fields from the imported inventory.
+
+The built-in catalogue is a starter list, not a complete official item schema. For a much broader catalogue, open **Settings** and load `items_game.txt` from your CS:GO Legacy installation. Optionally load `csgo_english.txt` to resolve localized item names. The schema is parsed locally in your browser. Paint-kit definitions are read from the same schema and can be used when creating items.
+
+## Player and GC configuration
+
+Load `config.txt) to edit the options supported by the original project:
+
+- Competitive, Wingman and Danger Zone ranks/wins
+- Player level and XP
+- Commendations and VAC status
+- Country and currency
+- Rarity weights
+- Used-item cleanup, App ID override, server-browser filtering, logging, schema path and editor Origin
+
+Unknown config entries are retained. If config changes are made, export and replace **both** `inventory.txt` and `config.txt`.
+
+## Live GC connection
+
+The editor implements protocol v1 for the local WebSocket endpoint `ws://127.0.0.1:13001`.
+
+In your local `csgo_gc` `config.txt`, set the exact website Origin:
 
 ```text
 "inventory_editor_origin" "https://your-project.vercel.app"
 ```
 
-Restart the GC after changing the setting. The GC validates the WebSocket Origin and listens only on loopback at port 13001.
+Restart the GC after changing the setting. The GC validates the Origin and binds its server to loopback. The browser editor receives an inventory snapshot and can send create, modify and destroy commands. Creates/deletes are treated as pending until the GC confirms them; uncertain requests are not silently retried.
 
-**Browser security caveat:** a hosted HTTPS page connecting to a local insecure WebSocket (`ws://127.0.0.1`) may be blocked by browser mixed-content or local-network access protections. Test the target browser and local setup. Offline file editing does not depend on this connection.
+**Browser security caveat:** some browsers may block a hosted HTTPS page from opening a local insecure WebSocket because of mixed-content or local-network access protections. Test the target browser. If it blocks the connection, use offline editing or a local secure bridge. This is not controlled by Vercel.
 
-## Important notes
+## Privacy and safety
 
-- Inventory and config files are read and written locally in the browser; this app does not upload them.
-- The initial item form accepts a numeric `def_index`. A complete schema-backed searchable item catalogue, item artwork, and richer attribute/equip editors are still to be implemented.
-- Profile changes are exported to `config.txt`; when that file is changed, replace both the inventory and config files as instructed by the app.
-- Test exported files against a backup of your GC setup before using them in-game.
+- Inventory, config and schema files are read locally in the browser.
+- No account, database or application backend is used.
+- Keep backups of your original files and test exports before using them in-game.
+- The editor does not modify your game installation directly.
