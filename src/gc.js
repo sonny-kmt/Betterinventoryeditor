@@ -84,7 +84,9 @@ export class GCConnection extends EventTarget {
     if(this.pendingDelete&&!this.items.has(this.pendingDelete.lowId)){
       clearTimeout(this.deleteTimer);this.emit("deleted",{lowId:this.pendingDelete.lowId});this.pendingDelete=null;
     }
-    this.em  create(item){
+    this.emit("change",[...this.items.values()]);
+  }
+  create(item){
     if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive||this.createQueue.length)throw Error("Wait for a synchronized connection before adding an item.");
     const requestId=this.nextRequestId++;this.pendingCreate={requestId,assignedId:null,batch:false};this.ws.send(encodeCreate(item,requestId));
     this.createTimer=setTimeout(()=>{if(this.pendingCreate?.requestId===requestId){this.emit("uncertain",{action:"create",requestId});this.pendingCreate=null}},10000);return requestId;
@@ -100,8 +102,6 @@ export class GCConnection extends EventTarget {
     const item=this.createQueue.shift(),requestId=this.nextRequestId++;
     this.pendingCreate={requestId,assignedId:null,batch:true};this.ws.send(encodeCreate(item,requestId));
     this.createTimer=setTimeout(()=>{if(this.pendingCreate?.requestId===requestId){const remaining=this.createQueue.length;this.createQueue=[];this.pendingCreate=null;this.batchActive=false;this.emit("uncertain",{action:"create",requestId,batch:true,remaining})}},10000);
-  }
-Create=null}},10000);return requestId;
   }
   modify(item){if(!this.ready||this.ws?.readyState!==WebSocket.OPEN)throw Error("Not connected to the GC.");this.ws.send(encodeModify(item))}
   destroy(lowId){
