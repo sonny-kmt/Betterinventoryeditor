@@ -118,7 +118,7 @@ let activeWeapon=null,activeSkins=[],selectedSkin=null;
 const isSkinBase=x=>!!x&&["rifles","snipers","smgs","shotguns","machineguns","pistols","knives","gloves"].includes(x.category);
 const isSouvenir=x=>/souvenir/i.test(String(x.containerType||"")+" "+String(x.name||""));
 const isCase=x=>!isSouvenir(x)&&(!x.containerType||/case/i.test(x.containerType)||/case/i.test(x.name||""));
-const agentTeam=x=>{const raw=JSON.stringify(x.team??x.team_name??x.teamName??x.team_id??"").toLowerCase();if(/counter.?terror|counter.?strike|ct_agents|ct-agent/.test(raw))return "ct";if(/terrorist|t_agents|t-agent/.test(raw))return "t";return ""};
+const agentTeam=x=>{const raw=JSON.stringify(x.team??x.team_name??x.teamName??x.team_id??"").toLowerCase();if(/counter.?terror|counter.?strike|ct_agents|ct-agent/.test(raw)||/^"(ct|counter.?terrorists?)"$/.test(raw))return "ct";if(/terrorist|t_agents|t-agent/.test(raw)||/^"(t|terrorists?)"$/.test(raw))return "t";return ""};
 const agentTypes=[{id:"ct-agents",name:"CT Agents",description:"Counter-Terrorist agents"},{id:"t-agents",name:"T Agents",description:"Terrorist agents"}];
 const randomItem=items=>items.length?items[Math.floor(Math.random()*items.length)]:null;
 const tileArtwork=(id,subcategory=null)=>{
