@@ -7,7 +7,7 @@ import {loadOnlineCatalogue,inventoryArtwork} from "./catalog.js";
 
 const $=s=>document.querySelector(s);
 const clone=x=>JSON.parse(JSON.stringify(x));
-const S={root:[],config:[],items:[],defaultEquips:[],schemaItems:[],paintKits:[],translations:{},iconManifest:null,iconManifestPromise:null,legacySkins:null,legacySkinsPromise:null,economyImagesByKit:{},caseImagesByDef:{},caseImagesByName:{},caseImagesPromise:null,keyImages:{},economyImagesByDef:{},economyImagesPromise:null,onlineCatalogueData:null,onlineCataloguePromise:null,onlineCatalogItems:[],loaded:false,inventoryFile:false,configFile:false,dirtyI:false,dirtyC:false,conn:null,page:"inventory",filter:"all",search:"",catalogFilter:"all",catalogSearch:"",selectedDef:null,liveMode:false,autoAddCaseKey:true,selectionMode:false,selectedItems:new Set()};
+const S={root:[],config:[],items:[],defaultEquips:[],schemaItems:[],paintKits:[],translations:{},iconManifest:null,iconManifestPromise:null,legacySkins:null,onlineCatalogueData:null,onlineCataloguePromise:null,onlineCatalogItems:[],loaded:false,inventoryFile:false,configFile:false,dirtyI:false,dirtyC:false,conn:null,page:"inventory",filter:"all",search:"",catalogFilter:"all",catalogSearch:"",selectedDef:null,liveMode:false,autoAddCaseKey:true,selectionMode:false,selectedItems:new Set()};
 const defs=new Map(catalogData.items.map(([id,className,name,category])=>[id,{id,className,name,category}]));
 const categories=catalogData.categories;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -36,51 +36,12 @@ async function loadDefaultIconManifest(refreshInventory=true){
 }
 
 function parseIconManifest(text){const m=JSON.parse(text);if(m.formatVersion!==1||!m.images||!m.definitions||!m.paint||!m.kits)throw Error("Unsupported icon manifest format.");for(const url of Object.values(m.images))if(typeof url!=="string"||!url.startsWith("https://cdn.steamstatic.com/apps/730/icons/"))throw Error("Icon manifest contains an untrusted image URL.");S.iconManifest=m;return Object.keys(m.images).length}
-async function loadEconomyImages(){
- if(S.economyImagesPromise)return S.economyImagesPromise;
- const sources=[
-  ["base_weapons","https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/base_weapons.json"],
-  ["agents","https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/agents.json"],
-  ["patches","https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/patches.json"],
-  ["music_kits","https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/music_kits.json"],
-  ["collectibles","https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/collectibles.json"]
- ];
- const tasks=sources.map(async([kind,url])=>{
-  try{
-   const response=await fetch(url);
-   if(!response.ok)throw Error(kind+" artwork unavailable");
-   const rows=await response.json();
-   for(const item of rows||[]){
-    const image=item?.image;
-    if(typeof image!=="string"||!image.startsWith("https://community.akamai.steamstatic.com/economy/image/"))continue;
-    const def=Number(item.def_index);
-    if(Number.isInteger(def)&&def>0)S.economyImagesByDef[String(def)]=image;
-    if(kind==="music_kits"&&item.id){
-     const kit=String(item.id).replace(/^music_kit-/,"");
-     S.economyImagesByKit["music:"+kit]=image;
-    }
-   }
-  }catch(error){console.warn(kind+" Steam artwork could not be loaded:",error)}
- });
- tasks.push((async()=>{
-  try{
-   const response=await fetch("https://raw.githubusercontent.com/dricotec/CSGO-API-STICKERS-THING/refs/heads/main/stickers.json");
-   if(!response.ok)throw Error("Sticker artwork unavailable");
-   const rows=await response.json();
-   for(const item of rows||[]){
-    const image=item?.image,index=Number(item?.sticker_index);
-    if(Number.isInteger(index)&&typeof image==="string"&&image.startsWith("https://community.akamai.steamstatic.com/economy/image/"))S.economyImagesByKit["sticker:"+index]=image;
-   }
-  }catch(error){console.warn("Sticker Steam artwork could not be loaded:",error)}
- })());
- S.economyImagesPromise=Promise.all(tasks).then(()=>Object.keys(S.economyImagesByDef).length).catch(error=>{
-  S.economyImagesPromise=null;
-  console.warn("Steam artwork catalogue could not be loaded:",error);
-  return 0;
- });
- return S.economyImagesPromise;
+async function loadLegacySkins(){if(S.legacySkins)return S.legacySkins;await loadDefaultIconManifest(false);return S.legacySkins||[]}
+async function loadDefaultIconManifest(refreshInventory=true){
+ if(!S.onlineCataloguePromise)S.onlineCataloguePromise=loadOnlineCatalogue().then(data=>{S.onlineCatalogueData=data;S.onlineCatalogItems=data.items;S.legacySkins=data.legacySkins;return data}).catch(error=>{S.onlineCataloguePromise=null;console.warn("Complete CS:GO item catalogue could not be loaded:",error);return null});
+ await S.onlineCataloguePromise;
+ if(refreshInventory&&S.loaded&&S.page==="inventory")render();
 }
-async function loadDefaultIconManifest(refreshInventory=true){await Promise.all([loadKeyImages(),loadCaseImages(),loadEconomyImages(),loadLegacySkins().catch(error=>{console.warn("Legacy skin artwork could not be loaded:",error);return []})]);if(!S.iconManifest&&!S.iconManifestPromise)S.iconManifestPromise=fetch("/icons.json",{cache:"force-cache"}).then(response=>{if(!response.ok)throw Error("Artwork manifest unavailable");return response.text()}).then(parseIconManifest).catch(error=>{S.iconManifestPromise=null;console.warn("Default item artwork could not be loaded:",error);return 0});if(S.iconManifestPromise)await S.iconManifestPromise;if(refreshInventory&&S.loaded&&S.page==="inventory")render()}
 
 function itemCard(item){const cat=itemCategory(item),rarity=Math.min(7,Math.max(0,item.rarity)),url=itemIcon(item),selected=S.selectedItems.has(item.lowId);const art=url?'<img class="item-thumb" src="'+esc(url)+'" alt="" loading="lazy" onerror="this.remove()">' :'<div class="art-missing" aria-label="Artwork unavailable"></div>';return '<article class="item '+(selected?'item-selected':'')+'" '+(S.selectionMode?'data-select-card="'+item.lowId+'" role="checkbox" aria-checked="'+selected+'" tabindex="0"':'')+'><div class="visual"><span class="rarity r'+rarity+'"></span><span class="id">#'+item.lowId+'</span>'+art+'</div><div class="item-body">'+(S.selectionMode?'<label class="item-select"><input type="checkbox" data-select-item="'+item.lowId+'" '+(selected?'checked':'')+'> Select item</label>':'')+'<b>'+esc(itemName(item))+'</b><small>'+esc(cat)+' · Def '+item.def_index+' · Quality '+item.quality+'</small><div class="item-actions">'+(S.selectionMode?'':'<button data-edit="'+item.lowId+'">Edit details</button><button class="remove" data-remove="'+item.lowId+'">Remove</button>')+'</div></div></article>'}
 function inventoryPage(){const rows=S.items.filter(x=>(S.filter==="all"||itemCategory(x)===S.filter)&&(`${itemName(x)} ${x.def_index} ${x.lowId}`.toLowerCase().includes(S.search.toLowerCase())));return `<div class="toolbar"><div><h2>My inventory <span class="count">${S.items.length}</span></h2><p>Browse and edit the items in your inventory.</p></div><div class="actions"><input id="search" class="search" placeholder="Search inventory..." value="${esc(S.search)}"><button class="btn secondary" id="toggle-select">${S.selectionMode?"Cancel selection":"Select items"}</button><button class="btn primary" id="add">＋ Add item</button></div></div>${S.selectionMode?`<div class="bulk-actions"><span><b>${S.selectedItems.size}</b> selected</span><div><button class="btn secondary" id="select-visible">Select all shown</button><button class="btn secondary" id="clear-selection">Clear</button><button class="btn danger" id="delete-selected" ${S.selectedItems.size?"":"disabled"}>Delete selected</button></div></div>`:""}<div class="filters">${["all",...categories.map(c=>c.id)].map(x=>`<button data-filter="${x}" class="${S.filter===x?"selected":""}">${x==="all"?"All items":categories.find(c=>c.id===x)?.name}</button>`).join("")}</div><div class="grid">${rows.map(itemCard).join("")||'<div class="empty">No items match this view. Try another category or add an item.</div>'}</div><div class="default-equips"><div><b>Default equipment</b><small>Team and slot defaults stored in inventory.txt</small></div><button class="btn secondary" id="edit-default-equips">Edit defaults</button></div>`}
