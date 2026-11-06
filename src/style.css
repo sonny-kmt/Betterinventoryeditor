@@ -130,3 +130,10 @@
 .config-group .field select{min-height:43px}
 @media(max-width:850px){.inventory-scroll{max-height:calc(100vh - 390px);min-height:260px}}
 @media(max-width:600px){.category-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.category-tile{min-height:142px;padding:13px}.category-icon{width:40px;height:40px;font-size:22px}.category-tile b{font-size:12px}.category-tile small{font-size:9px}.inventory-scroll{max-height:calc(100dvh - 350px);min-height:240px}.add-catalog-panel .catalog-results{min-height:260px;height:52vh}}
+
+/* Image-led catalogue category tiles */
+.category-icon{width:100%;height:104px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#344766,#1a2639 72%);border-radius:10px;padding:5px}
+.category-icon img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 5px 10px #0009)}
+.category-art-fallback{width:70%;height:70%;border:1px solid #465a78;border-radius:9px;background:linear-gradient(135deg,#263953,#111a29)}
+.category-tile{min-height:196px}
+@media(max-width:600px){.category-icon{height:78px}.category-tile{min-height:172px}}
