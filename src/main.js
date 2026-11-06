@@ -188,7 +188,7 @@ const chooseSkin=skin=>{
  $("#case-key-note").textContent=skin?"Legacy finish selected.":"Vanilla finish selected.";
  $("#create-item").disabled=false;$("#create-item").textContent="Add "+(skin?skin.name:activeWeapon.name)+" to inventory";
 };
-const matchingCaseKey=()=>{const x=selectedCatalogItem();return x?.category==="cases"&&(!x.containerType||x.containerType==="Case")?findCaseKey(x,allCatalogItems()):null};
+const matchingCaseKey=()=>{const x=selectedCatalogItem();return x?.category==="cases"&&isCase(x)?findCaseKey(x,allCatalogItems()):null};
 search.oninput=renderBrowse;
 $("#catalog-categories").onclick=e=>{
  const button=e.target.closest("[data-category-tile]");if(!button)return;
