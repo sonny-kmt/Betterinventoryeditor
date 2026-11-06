@@ -34,7 +34,7 @@ The built-in catalogue is a starter list, not a complete official item schema. F
 
 ## Player and GC configuration
 
-Load `config.txt) to edit the options supported by the original project:
+Load `config.txt` to edit the options supported by the original project:
 
 - Competitive, Wingman and Danger Zone ranks/wins
 - Player level and XP
