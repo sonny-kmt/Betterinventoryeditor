@@ -1,0 +1,742 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "rifles",
+      "name": "Rifles",
+      "emoji": "🎯"
+    },
+    {
+      "id": "snipers",
+      "name": "Sniper rifles",
+      "emoji": "🔭"
+    },
+    {
+      "id": "smgs",
+      "name": "SMGs",
+      "emoji": "⚡"
+    },
+    {
+      "id": "shotguns",
+      "name": "Shotguns",
+      "emoji": "💥"
+    },
+    {
+      "id": "machineguns",
+      "name": "Machine guns",
+      "emoji": "🔥"
+    },
+    {
+      "id": "pistols",
+      "name": "Pistols",
+      "emoji": "🔫"
+    },
+    {
+      "id": "knives",
+      "name": "Knives",
+      "emoji": "🔪"
+    },
+    {
+      "id": "gloves",
+      "name": "Gloves",
+      "emoji": "🧤"
+    },
+    {
+      "id": "agents",
+      "name": "Agents",
+      "emoji": "🪖"
+    },
+    {
+      "id": "cases",
+      "name": "Cases & containers",
+      "emoji": "📦"
+    },
+    {
+      "id": "keys",
+      "name": "Keys",
+      "emoji": "🗝️"
+    },
+    {
+      "id": "stickers",
+      "name": "Stickers",
+      "emoji": "🏷️"
+    },
+    {
+      "id": "patches",
+      "name": "Patches",
+      "emoji": "🧵"
+    },
+    {
+      "id": "music",
+      "name": "Music kits",
+      "emoji": "🎵"
+    },
+    {
+      "id": "other",
+      "name": "Other",
+      "emoji": "◇"
+    }
+  ],
+  "items": [
+    [
+      1,
+      "weapon_deagle",
+      "Desert Eagle",
+      "pistols"
+    ],
+    [
+      2,
+      "weapon_elite",
+      "Dual Berettas",
+      "pistols"
+    ],
+    [
+      3,
+      "weapon_fiveseven",
+      "Five-SeveN",
+      "pistols"
+    ],
+    [
+      4,
+      "weapon_glock",
+      "Glock-18",
+      "pistols"
+    ],
+    [
+      30,
+      "weapon_tec9",
+      "Tec-9",
+      "pistols"
+    ],
+    [
+      32,
+      "weapon_hkp2000",
+      "P2000",
+      "pistols"
+    ],
+    [
+      36,
+      "weapon_p250",
+      "P250",
+      "pistols"
+    ],
+    [
+      61,
+      "weapon_usp_silencer",
+      "USP-S",
+      "pistols"
+    ],
+    [
+      63,
+      "weapon_cz75a",
+      "CZ75-Auto",
+      "pistols"
+    ],
+    [
+      64,
+      "weapon_revolver",
+      "R8 Revolver",
+      "pistols"
+    ],
+    [
+      7,
+      "weapon_ak47",
+      "AK-47",
+      "rifles"
+    ],
+    [
+      8,
+      "weapon_aug",
+      "AUG",
+      "rifles"
+    ],
+    [
+      10,
+      "weapon_famas",
+      "FAMAS",
+      "rifles"
+    ],
+    [
+      13,
+      "weapon_galilar",
+      "Galil AR",
+      "rifles"
+    ],
+    [
+      16,
+      "weapon_m4a1",
+      "M4A4",
+      "rifles"
+    ],
+    [
+      60,
+      "weapon_m4a1_silencer",
+      "M4A1-S",
+      "rifles"
+    ],
+    [
+      39,
+      "weapon_sg556",
+      "SG 553",
+      "rifles"
+    ],
+    [
+      9,
+      "weapon_awp",
+      "AWP",
+      "snipers"
+    ],
+    [
+      11,
+      "weapon_g3sg1",
+      "G3SG1",
+      "snipers"
+    ],
+    [
+      38,
+      "weapon_scar20",
+      "SCAR-20",
+      "snipers"
+    ],
+    [
+      40,
+      "weapon_ssg08",
+      "SSG 08",
+      "snipers"
+    ],
+    [
+      17,
+      "weapon_mac10",
+      "MAC-10",
+      "smgs"
+    ],
+    [
+      19,
+      "weapon_p90",
+      "P90",
+      "smgs"
+    ],
+    [
+      23,
+      "weapon_mp5sd",
+      "MP5-SD",
+      "smgs"
+    ],
+    [
+      24,
+      "weapon_ump45",
+      "UMP-45",
+      "smgs"
+    ],
+    [
+      26,
+      "weapon_bizon",
+      "PP-Bizon",
+      "smgs"
+    ],
+    [
+      33,
+      "weapon_mp7",
+      "MP7",
+      "smgs"
+    ],
+    [
+      34,
+      "weapon_mp9",
+      "MP9",
+      "smgs"
+    ],
+    [
+      25,
+      "weapon_xm1014",
+      "XM1014",
+      "shotguns"
+    ],
+    [
+      27,
+      "weapon_mag7",
+      "MAG-7",
+      "shotguns"
+    ],
+    [
+      29,
+      "weapon_sawedoff",
+      "Sawed-Off",
+      "shotguns"
+    ],
+    [
+      35,
+      "weapon_nova",
+      "Nova",
+      "shotguns"
+    ],
+    [
+      14,
+      "weapon_m249",
+      "M249",
+      "machineguns"
+    ],
+    [
+      28,
+      "weapon_negev",
+      "Negev",
+      "machineguns"
+    ],
+    [
+      31,
+      "weapon_taser",
+      "Zeus x27",
+      "other"
+    ],
+    [
+      500,
+      "weapon_bayonet",
+      "Bayonet",
+      "knives"
+    ],
+    [
+      503,
+      "weapon_knife_css",
+      "Classic Knife",
+      "knives"
+    ],
+    [
+      505,
+      "weapon_knife_flip",
+      "Flip Knife",
+      "knives"
+    ],
+    [
+      506,
+      "weapon_knife_gut",
+      "Gut Knife",
+      "knives"
+    ],
+    [
+      507,
+      "weapon_knife_karambit",
+      "Karambit",
+      "knives"
+    ],
+    [
+      508,
+      "weapon_knife_m9_bayonet",
+      "M9 Bayonet",
+      "knives"
+    ],
+    [
+      509,
+      "weapon_knife_tactical",
+      "Huntsman Knife",
+      "knives"
+    ],
+    [
+      512,
+      "weapon_knife_falchion",
+      "Falchion Knife",
+      "knives"
+    ],
+    [
+      514,
+      "weapon_knife_survival_bowie",
+      "Bowie Knife",
+      "knives"
+    ],
+    [
+      515,
+      "weapon_knife_butterfly",
+      "Butterfly Knife",
+      "knives"
+    ],
+    [
+      516,
+      "weapon_knife_push",
+      "Shadow Daggers",
+      "knives"
+    ],
+    [
+      517,
+      "weapon_knife_cord",
+      "Paracord Knife",
+      "knives"
+    ],
+    [
+      518,
+      "weapon_knife_canis",
+      "Survival Knife",
+      "knives"
+    ],
+    [
+      519,
+      "weapon_knife_ursus",
+      "Ursus Knife",
+      "knives"
+    ],
+    [
+      520,
+      "weapon_knife_gypsy_jackknife",
+      "Navaja Knife",
+      "knives"
+    ],
+    [
+      521,
+      "weapon_knife_outdoor",
+      "Nomad Knife",
+      "knives"
+    ],
+    [
+      522,
+      "weapon_knife_stiletto",
+      "Stiletto Knife",
+      "knives"
+    ],
+    [
+      523,
+      "weapon_knife_widowmaker",
+      "Talon Knife",
+      "knives"
+    ],
+    [
+      525,
+      "weapon_knife_skeleton",
+      "Skeleton Knife",
+      "knives"
+    ],
+    [
+      5027,
+      "studded_bloodhound_gloves",
+      "Bloodhound Gloves",
+      "gloves"
+    ],
+    [
+      5028,
+      "studded_brokenfang_gloves",
+      "Broken Fang Gloves",
+      "gloves"
+    ],
+    [
+      5029,
+      "studded_hydra_gloves",
+      "Hydra Gloves",
+      "gloves"
+    ],
+    [
+      5030,
+      "studded_sport_gloves",
+      "Sport Gloves",
+      "gloves"
+    ],
+    [
+      5031,
+      "studded_driver_gloves",
+      "Driver Gloves",
+      "gloves"
+    ],
+    [
+      5032,
+      "studded_handwrap_gloves",
+      "Hand Wraps",
+      "gloves"
+    ],
+    [
+      5033,
+      "studded_moto_gloves",
+      "Moto Gloves",
+      "gloves"
+    ],
+    [
+      5034,
+      "studded_specialist_gloves",
+      "Specialist Gloves",
+      "gloves"
+    ],
+    [
+      5035,
+      "studded_bloodhound_gloves",
+      "Broken Fang Gloves",
+      "gloves"
+    ],
+    [
+      4001,
+      "crate",
+      "CS:GO Weapon Case",
+      "cases"
+    ],
+    [
+      4002,
+      "crate",
+      "eSports 2013 Case",
+      "cases"
+    ],
+    [
+      4003,
+      "crate",
+      "Operation Bravo Case",
+      "cases"
+    ],
+    [
+      4004,
+      "crate",
+      "CS:GO Weapon Case 2",
+      "cases"
+    ],
+    [
+      4005,
+      "crate",
+      "eSports 2013 Winter Case",
+      "cases"
+    ],
+    [
+      4006,
+      "crate",
+      "Winter Offensive Weapon Case",
+      "cases"
+    ],
+    [
+      4007,
+      "crate",
+      "CS:GO Weapon Case 3",
+      "cases"
+    ],
+    [
+      4008,
+      "crate",
+      "Operation Phoenix Weapon Case",
+      "cases"
+    ],
+    [
+      4009,
+      "crate",
+      "Huntsman Weapon Case",
+      "cases"
+    ],
+    [
+      4010,
+      "crate",
+      "Operation Breakout Weapon Case",
+      "cases"
+    ],
+    [
+      4011,
+      "crate",
+      "eSports 2014 Summer Case",
+      "cases"
+    ],
+    [
+      4012,
+      "crate",
+      "Operation Vanguard Weapon Case",
+      "cases"
+    ],
+    [
+      4016,
+      "crate",
+      "Chroma Case",
+      "cases"
+    ],
+    [
+      4017,
+      "crate",
+      "Chroma 2 Case",
+      "cases"
+    ],
+    [
+      4018,
+      "crate",
+      "Falchion Case",
+      "cases"
+    ],
+    [
+      4019,
+      "crate",
+      "Shadow Case",
+      "cases"
+    ],
+    [
+      4020,
+      "crate",
+      "Revolver Case",
+      "cases"
+    ],
+    [
+      4021,
+      "crate",
+      "Operation Wildfire Case",
+      "cases"
+    ],
+    [
+      4022,
+      "crate",
+      "Chroma 3 Case",
+      "cases"
+    ],
+    [
+      4023,
+      "crate",
+      "Gamma Case",
+      "cases"
+    ],
+    [
+      4024,
+      "crate",
+      "Gamma 2 Case",
+      "cases"
+    ],
+    [
+      4025,
+      "crate",
+      "Glove Case",
+      "cases"
+    ],
+    [
+      4026,
+      "crate",
+      "Spectrum Case",
+      "cases"
+    ],
+    [
+      4027,
+      "crate",
+      "Operation Hydra Case",
+      "cases"
+    ],
+    [
+      4028,
+      "crate",
+      "Spectrum 2 Case",
+      "cases"
+    ],
+    [
+      4029,
+      "crate",
+      "Clutch Case",
+      "cases"
+    ],
+    [
+      4030,
+      "crate",
+      "Horizon Case",
+      "cases"
+    ],
+    [
+      4031,
+      "crate",
+      "Danger Zone Case",
+      "cases"
+    ],
+    [
+      4032,
+      "crate",
+      "Prisma Case",
+      "cases"
+    ],
+    [
+      4033,
+      "crate",
+      "CS20 Case",
+      "cases"
+    ],
+    [
+      4034,
+      "crate",
+      "Prisma 2 Case",
+      "cases"
+    ],
+    [
+      4035,
+      "crate",
+      "Fracture Case",
+      "cases"
+    ],
+    [
+      4036,
+      "crate",
+      "Operation Broken Fang Case",
+      "cases"
+    ],
+    [
+      4037,
+      "crate",
+      "Snakebite Case",
+      "cases"
+    ],
+    [
+      4038,
+      "crate",
+      "Dreams & Nightmares Case",
+      "cases"
+    ],
+    [
+      4039,
+      "crate",
+      "Recoil Case",
+      "cases"
+    ],
+    [
+      4040,
+      "crate",
+      "Revolution Case",
+      "cases"
+    ],
+    [
+      4041,
+      "crate",
+      "Kilowatt Case",
+      "cases"
+    ],
+    [
+      4042,
+      "crate",
+      "Gallery Case",
+      "cases"
+    ],
+    [
+      4043,
+      "crate",
+      "Fever Case",
+      "cases"
+    ],
+    [
+      1201,
+      "weapon_knife",
+      "CS:GO Case Key",
+      "keys"
+    ],
+    [
+      1202,
+      "weapon_knife",
+      "eSports Key",
+      "keys"
+    ],
+    [
+      1203,
+      "weapon_knife",
+      "Winter Offensive Case Key",
+      "keys"
+    ],
+    [
+      1204,
+      "weapon_knife",
+      "CS:GO Capsule Key",
+      "keys"
+    ],
+    [
+      1314,
+      "music_kit",
+      "Music Kit",
+      "music"
+    ],
+    [
+      4609,
+      "patch",
+      "Patch",
+      "patches"
+    ],
+    [
+      6000,
+      "sticker",
+      "Sticker",
+      "stickers"
+    ]
+  ]
+}
