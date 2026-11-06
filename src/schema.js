@@ -1,7 +1,7 @@
 import {parseKV,get} from "./kv.js";
 
-const QUALITY=Object.freeze({normal:0,genuine:1,vintage:2,unusual:3,unique:4,community:5,developer:6,selfmade:7,customized:8,strange:9,completed:10,tournament:12,trophy:13});
-const RARITY=Object.freeze({default:0,common:1,uncommon:2,rare:3,mythical:4,legendary:5,ancient:6,immortal:7});
+const QUALITY=Object.freeze({normal:0,genuine:1,vintage:2,unusual:3,unique:4,community:5,developer:6,selfmade:7,customized:8,strange:9,completed:10});
+const RARITY=Object.freeze({default:0,common:1,uncommon:2,rare:3,mythical:4,legendary:5,ancient:6,immortal:7,unusual:99});
 const STOP=new Set(["csgo","case","crate","key","weapon","item","the","of","and","a","an","pack","capsule","container"]);
 function mergePairs(base,override){
   const out=(base||[]).map(([k,v])=>[k,Array.isArray(v)?mergePairs(v,[]):v]);
