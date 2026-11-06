@@ -27,11 +27,36 @@ function iconFor(category){return categories.find(c=>c.id===category)?.emoji||"â
 function itemIcon(item){const category=itemCategory(item),attrs=new Map((item.attributes||[]).map(a=>[Number(a.def_index),a.value]));if(category==="keys")return keyImageFor(itemName(item));if(category==="cases")return caseImageFor(item);const def=String(item.def_index);if(["rifles","snipers","smgs","shotguns","machineguns","pistols","knives","gloves"].includes(category)){const kit=Number(attrs.get(6)||0);if(kit){const skinUrl=S.economyImagesByKit["skin:"+def+":"+kit];if(skinUrl)return skinUrl;const skin=(S.legacySkins||[]).find(x=>Number(x.weapon?.weapon_id)===Number(def)&&Number(x.paint_index)===kit);if(typeof skin?.image==="string"&&skin.image.startsWith("https://community.akamai.steamstatic.com/economy/image/"))return skin.image}}const steam=S.economyImagesByDef[def];if(steam)return steam;if(category==="music"){const kit=Number(attrs.get(166)||0);const url=S.economyImagesByKit["music:"+kit];if(url)return url}if(category==="stickers"){const kit=Number(attrs.get(113)||0);const url=S.economyImagesByKit["sticker:"+kit];if(url)return url}return ""}
 function normalizedItemName(value){return String(value||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
 function keyImageFor(name){return S.keyImages[normalizedItemName(name)]||""}
-function caseImageFor(item){const name=normalizedItemName(item?.name||"");return name?S.caseImagesByName[name]||"":""}
+function caseImageFor(item){const def=String(item?.def_index??item?.id??"");return S.caseImagesByDef[def]||""}
 function catalogImage(id,item=null){if(item?.category==="keys")return keyImageFor(item.name);if(item?.category==="cases")return caseImageFor({...item,id});const economy=S.economyImagesByDef[String(id)];if(economy)return economy;return ""}
 async function loadLegacySkins(){if(S.legacySkins)return S.legacySkins;if(!S.legacySkinsPromise)S.legacySkinsPromise=fetch("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json").then(r=>{if(!r.ok)throw Error("Skin catalogue request failed ("+r.status+")");return r.json()}).then(rows=>{S.legacySkins=Array.isArray(rows)?rows.filter(x=>x&&x.legacy_model===true):[];for(const skin of S.legacySkins){const key=Number(skin.weapon?.weapon_id)+":"+Number(skin.paint_index);if(Number.isFinite(Number(skin.weapon?.weapon_id))&&Number.isFinite(Number(skin.paint_index))&&typeof skin.image==="string"&&skin.image.startsWith("https://community.akamai.steamstatic.com/economy/image/"))S.economyImagesByKit["skin:"+key]=skin.image}return S.legacySkins}).catch(e=>{S.legacySkinsPromise=null;throw e});return S.legacySkinsPromise}
 async function loadKeyImages(){try{const response=await fetch("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/keys.json");if(!response.ok)throw Error("Key artwork unavailable");const rows=await response.json();for(const item of rows||[]){if(item?.name&&typeof item.image==="string"&&item.image.startsWith("https://community.akamai.steamstatic.com/economy/image/"))S.keyImages[normalizedItemName(item.name)]=item.image}}catch(e){console.warn("Key artwork could not be loaded:",e)}}
-async function loadCaseImages(){if(S.caseImagesPromise)return S.caseImagesPromise;S.caseImagesPromise=fetch("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/crates.json").then(r=>{if(!r.ok)throw Error("Case artwork request failed ("+r.status+")");return r.json()}).then(rows=>{S.caseImagesByDef={};S.caseImagesByName={};for(const item of rows||[]){const url=item?.image;if(typeof url!=="string"||!url.startsWith("https://community.akamai.steamstatic.com/economy/image/"))continue;const def=Number(item.def_index);if(Number.isInteger(def)&&def>0)S.caseImagesByDef[String(def)]=url;if(item.name)S.caseImagesByName[normalizedItemName(item.name)]=url}return Object.keys(S.caseImagesByDef).length}).catch(e=>{S.caseImagesPromise=null;console.warn("Exact case artwork could not be loaded:",e);return 0});return S.caseImagesPromise}
+async function loadCaseImages(){
+ if(S.caseImagesPromise)return S.caseImagesPromise;
+ S.caseImagesPromise=fetch("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/inventory.json").then(r=>{
+  if(!r.ok)throw Error("CS2 inventory artwork request failed ("+r.status+")");
+  return r.json();
+ }).then(data=>{
+  S.caseImagesByDef={};
+  S.caseImagesByName={};
+  const crates=data?.crates||{};
+  for(const [id,className,name,category] of catalogData.items){
+   if(category!=="cases")continue;
+   const source=crates[String(id)];
+   const url=source?.image;
+   if(!source||normalizedItemName(source.name)!==normalizedItemName(name))continue;
+   if(typeof url!=="string"||!url.startsWith("https://community.akamai.steamstatic.com/economy/image/"))continue;
+   S.caseImagesByDef[String(id)]=url;
+   S.caseImagesByName[normalizedItemName(name)]=url;
+  }
+  return Object.keys(S.caseImagesByDef).length;
+ }).catch(e=>{
+  S.caseImagesPromise=null;
+  console.warn("Exact CS2 case artwork could not be loaded:",e);
+  return 0;
+ });
+ return S.caseImagesPromise;
+}
 function parseIconManifest(text){const m=JSON.parse(text);if(m.formatVersion!==1||!m.images||!m.definitions||!m.paint||!m.kits)throw Error("Unsupported icon manifest format.");for(const url of Object.values(m.images))if(typeof url!=="string"||!url.startsWith("https://cdn.steamstatic.com/apps/730/icons/"))throw Error("Icon manifest contains an untrusted image URL.");S.iconManifest=m;return Object.keys(m.images).length}
 async function loadEconomyImages(){
  if(S.economyImagesPromise)return S.economyImagesPromise;
