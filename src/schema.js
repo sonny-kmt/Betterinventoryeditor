@@ -2,7 +2,7 @@ import {parseKV,get} from "./kv.js";
 
 const QUALITY=Object.freeze({normal:0,genuine:1,vintage:2,unusual:3,unique:4,community:5,developer:6,selfmade:7,customized:8,strange:9,completed:10,haunted:11,tournament:12});
 const RARITY=Object.freeze({default:0,common:1,uncommon:2,rare:3,mythical:4,legendary:5,ancient:6,immortal:7,unusual:99});
-const STOP=new Set(["csgo","case","crate","key","weapon","item","the","of","and","a","an","pack","capsule","container"]);
+const STOP=new Set(["csgo","cs","go","case","crate","key","weapon","item","the","of","and","a","an","pack","capsule","container"]);
 function mergePairs(base,override){
   const out=(base||[]).map(([k,v])=>[k,Array.isArray(v)?mergePairs(v,[]):v]);
   for(const [key,value] of override||[]){const existing=out.find(x=>x[0]===key);if(!existing)out.push([key,Array.isArray(value)?mergePairs(value,[]):value]);else if(Array.isArray(existing[1])&&Array.isArray(value))existing[1]=mergePairs(existing[1],value);else existing[1]=value;}
@@ -37,7 +37,8 @@ function labelWords(item){
 }
 function isGenericKey(item){
   const label=[item?.name,item?.itemNameToken,item?.className].filter(Boolean).join(" ").toLowerCase();
-  return Number(item?.id)===1201||/csgo[_ ](?:crate|case)[_ ]key/.test(label)||/csgo crate key/.test(label);
+  const normalized=label.replace(/[^a-z0-9]+/g," ").trim();
+  return Number(item?.id)===1203||/\bcs go case key\b/.test(normalized)||/\bcsgo (?:crate|case) key\b/.test(normalized);
 }
 export function parseLegacySchema(text,{definitions=new Map(),translations={}}={}){
   const root=parseKV(text),data=get(root,"items_game")||root,rawItems=get(data,"items");
