@@ -27,15 +27,6 @@ function parseSchema(text){const parsed=parseLegacySchema(text,{definitions:defs
 function iconFor(category){return categories.find(c=>c.id===category)?.emoji||"◇"}
 function itemIcon(item){const category=itemCategory(item);return S.onlineCatalogueData?inventoryArtwork({...item,category},item.attributes||[],S.onlineCatalogueData):""}
 function catalogImage(id,item=null){if(item?.artwork)return item.artwork;if(!S.onlineCatalogueData)return "";const category=item?.category||defs.get(Number(id))?.category;return inventoryArtwork({def_index:item?.defIndex??id,category},item?.kitIndex!=null?[{def_index:category==="music"?166:113,value:String(item.kitIndex)}]:[],S.onlineCatalogueData)}
-async function loadDefaultIconManifest(refreshInventory=true){
- if(!S.onlineCataloguePromise)S.onlineCataloguePromise=loadOnlineCatalogue().then(data=>{S.onlineCatalogueData=data;S.onlineCatalogItems=data.items;S.legacySkins=data.legacySkins;return data}).catch(error=>{S.onlineCataloguePromise=null;console.warn("Complete CS:GO item catalogue could not be loaded:",error);return null});
- await S.onlineCataloguePromise;
- if(!S.iconManifest&&!S.iconManifestPromise)S.iconManifestPromise=fetch("/icons.json",{cache:"force-cache"}).then(response=>{if(!response.ok)throw Error("Artwork manifest unavailable");return response.text()}).then(parseIconManifest).catch(error=>{S.iconManifestPromise=null;console.warn("Default item artwork could not be loaded:",error);return 0});
- if(S.iconManifestPromise)await S.iconManifestPromise;
- if(refreshInventory&&S.loaded&&S.page==="inventory")render();
-}
-
-
 async function loadLegacySkins(){if(S.legacySkins)return S.legacySkins;await loadDefaultIconManifest(false);return S.legacySkins||[]}
 async function loadDefaultIconManifest(refreshInventory=true){
  if(!S.onlineCataloguePromise)S.onlineCataloguePromise=loadOnlineCatalogue().then(data=>{S.onlineCatalogueData=data;S.onlineCatalogItems=data.items;S.legacySkins=data.legacySkins;return data}).catch(error=>{S.onlineCataloguePromise=null;console.warn("Complete CS:GO item catalogue could not be loaded:",error);return null});
