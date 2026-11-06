@@ -30,7 +30,7 @@ Every push to `main` will trigger a new Vercel deployment if the repository is c
 - Export a new `inventory.txt` without uploading the source file.
 - Preserve unedited/unknown KeyValues fields from the imported inventory.
 
-The built-in catalogue is a starter list, not a complete official item schema. For a much broader catalogue, open **Settings** and load `items_game.txt` from your CS:GO Legacy installation. Optionally load `csgo_english.txt` to resolve localized item names. The schema is parsed locally in your browser. Paint-kit definitions are read from the same schema and can be used when creating items. You can also optionally load the reference editor's `icons.json` manifest to show Steam CDN artwork for supported definitions and paint variants: [icons.json](https://github.com/mikkokko/csgo_invedit/blob/master/icons.json).
+The built-in catalogue is a starter list, not a complete official item schema. For a much broader catalogue, open **Settings** and load `items_game.txt` from your CS:GO Legacy installation. Optionally load `csgo_english.txt` to resolve localized item names. The schema is parsed locally in your browser. Paint-kit definitions are read from the same schema and can be used when creating items. Steam CDN artwork is bundled and loaded automatically; the manifest can be overridden in Settings if needed.
 
 ## Player and GC configuration
 

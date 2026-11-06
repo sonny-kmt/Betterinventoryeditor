@@ -51,7 +51,7 @@ export function parseLegacySchema(text,{definitions=new Map(),translations={}}={
     const known=definitions.get(id),category=categoryFor(className,itemNameToken,prefab,itemType);
     const qualityName=String(get(merged,"item_quality")||"").toLowerCase(),rarityName=String(get(merged,"item_rarity")||"").toLowerCase();
     const attributes=get(merged,"attributes")||[],supply=get(attributes,"supply_crate_series");
-    items.push({id,name:translations[itemNameToken]||known?.name||className||"Item "+id,itemNameToken,className,category,prefab,itemType,image:String(get(merged,"image_inventory")||""),rarity:rarityName,quality:qualityName,defaultQuality:QUALITY[qualityName]??4,defaultRarity:RARITY[rarityName]??(category==="keys"?1:3),supplyCrateSeries:supply==null?0:Number(supply)||0});
+    items.push({id,name:translations[itemNameToken]||known?.name||className||"Item "+id,itemNameToken,className,category,prefab,itemType,image:String(get(merged,"image_inventory")||""),rarity:rarityName,quality:qualityName,defaultQuality:QUALITY[qualityName]??0,defaultRarity:RARITY[rarityName]??1,supplyCrateSeries:supply==null?0:Number(supply)||0});
   }
   const paintKits=(get(data,"paint_kits")||[]).map(([id,p])=>{const token=String(get(p,"description_tag")||get(p,"name")||"");return {id:Number(id),token,name:translations[token]||token||("Paint kit "+id),min:Number(get(p,"wear_remap_min")??0),max:Number(get(p,"wear_remap_max")??1)}}).filter(x=>Number.isSafeInteger(x.id)&&x.id>0);
   return {items,paintKits};

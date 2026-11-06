@@ -66,7 +66,7 @@ export class GCConnection extends EventTarget {
     ws.onopen=()=>{if(this.ws===ws){this.status="Waiting for inventory";this.emit("status",this.status)}};
     ws.onmessage=e=>{if(this.ws!==ws)return;try{this.receive(parseMessage(e.data))}catch(err){this.fail(err.message)}};
     ws.onerror=()=>{if(this.ws===ws)this.fail("Connection failed. Check that csgo_gc is running and inventory_editor_origin matches this website exactly.")};
-    ws.onclose=e=>{if(this.ws===ws){this.clearTimers();this.ws=null;this.ready=false;this.items.clear();this.status="Disconnected";this.emit("status",this.status);this.emit("close",{code:e.code})}};
+    ws.onclose=e=>{if(this.ws===ws){this.clearTimers();this.ws=null;this.ready=false;this.items.clear();this.pendingCreate=null;this.pendingDelete=null;this.createQueue=[];this.batchActive=false;this.status="Disconnected";this.emit("status",this.status);this.emit("close",{code:e.code})}};
   }
   receive(commands){
     if(this.version===null){if(commands.length!==1||commands[0].type!=="protocol")throw Error("GC did not send protocol information.");if(commands[0].version!==1)throw Error("Unsupported GC protocol version "+commands[0].version+".");this.version=1;return}
