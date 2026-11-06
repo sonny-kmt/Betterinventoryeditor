@@ -3,6 +3,7 @@ const SOURCES={crates:"crates.json",keys:"keys.json",musicKits:"music_kits.json"
 const imageOk=value=>typeof value==="string"&&/^https:\/\/(community\.akamai\.steamstatic\.com\/economy\/image\/|cdn\.steamstatic\.com\/apps\/730\/icons\/)/.test(value);
 const number=value=>value===null||value===undefined||value===""?null:Number.isInteger(Number(value))&&Number(value)>0?Number(value):null;
 const indexFromId=(value,prefix)=>{const match=String(value||"").match(new RegExp("^"+prefix+"-(\\d+)$"));return match?Number(match[1]):null};
+const GLOVE_WEAPONS=new Set([4725,5027,5030,5031,5032,5033,5034,5035]);
 const row=(id,name,category,extra={})=>({id:Number(id),name:String(name||"Unknown item"),category,catalogKey:extra.catalogKey||"def:"+id,...extra});
 export async function loadOnlineCatalogue(fetcher=fetch){
  const entries=await Promise.all(Object.entries(SOURCES).map(async([key,file])=>{
@@ -27,9 +28,9 @@ export async function loadOnlineCatalogue(fetcher=fetch){
  for(const item of source.musicKits){const kit=number(item.def_index??indexFromId(item.id,"music_kit"));if(kit!=null)items.push(row(1314,item.name,"music",{catalogKey:"music:"+kit,kitIndex:kit,defIndex:1314,artwork:artwork.musicKits[String(kit)]|| (imageOk(item.image)?item.image:"")}))}
  for(const item of source.stickers){const kit=number(item.def_index??indexFromId(item.id,"sticker"));if(kit!=null)items.push(row(1209,item.name,"stickers",{catalogKey:"sticker:"+kit,kitIndex:kit,defIndex:1209,artwork:artwork.stickers[String(kit)]|| (imageOk(item.image)?item.image:"")}))}
  for(const item of source.patches){const id=number(item.def_index??indexFromId(item.id,"patch"));if(id!=null)items.push(row(id,item.name,"patches",{catalogKey:"def:"+id,artwork:artwork.patches[String(id)]|| (imageOk(item.image)?item.image:"")}))}
- for(const item of source.skins){if(item?.legacy_model!==true)continue;const weapon=number(item.weapon?.weapon_id),paint=number(item.paint_index);if(weapon==null||paint==null)continue;const image=inventory.skins?.[String(weapon)]?.[String(paint)]?.image||item.image;if(imageOk(image))skins[weapon+":"+paint]=image}
+ for(const item of source.skins){const weapon=number(item.weapon?.weapon_id),paint=number(item.paint_index);if(weapon==null||paint==null||!(item?.legacy_model===true||GLOVE_WEAPONS.has(weapon)))continue;const image=inventory.skins?.[String(weapon)]?.[String(paint)]?.image||item.image;if(imageOk(image))skins[weapon+":"+paint]=image}
  const unique=new Map();for(const item of items)unique.set(item.catalogKey,item);
- return {items:[...unique.values()],artwork,skins,legacySkins:source.skins.filter(item=>item?.legacy_model===true),counts:Object.fromEntries(Object.entries(artwork).map(([key,value])=>[key,Object.keys(value).length]))};
+ return {items:[...unique.values()],artwork,skins,legacySkins:source.skins.filter(item=>item?.legacy_model===true||GLOVE_WEAPONS.has(Number(item.weapon?.weapon_id))),counts:Object.fromEntries(Object.entries(artwork).map(([key,value])=>[key,Object.keys(value).length]))};
 }
 export function inventoryArtwork(item,attributes,library){
  const category=item?.category,def=String(item?.def_index??item?.id??""),attrs=new Map((attributes||[]).map(a=>[Number(a.def_index),a.value]));
