@@ -22,15 +22,16 @@ Every push to `main` will trigger a new Vercel deployment if the repository is c
 
 ## Inventory editor
 
-- Import `inventory.txt` locally.
-- Search and filter the built-in starter item catalogue by category.
+- Start with a new, empty inventory — no files are required to begin adding items.
+- Or import an existing `inventory.txt` locally.
+- Search and filter the bundled item catalogue by category.
 - Add known items or enter a custom definition index.
 - Edit inventory, quality, rarity, level, flags, origin, in-use state, attributes and equipped-state entries.
 - Edit default equipment assignments.
 - Export a new `inventory.txt` without uploading the source file.
 - Preserve unedited/unknown KeyValues fields from the imported inventory.
 
-The built-in catalogue is a starter list, not a complete official item schema. For a much broader catalogue, open **Settings** and load `items_game.txt` from your CS:GO Legacy installation. Optionally load `csgo_english.txt` to resolve localized item names. The schema is parsed locally in your browser. Paint-kit definitions are read from the same schema and can be used when creating items. Steam CDN artwork is bundled and loaded automatically; the manifest can be overridden in Settings if needed.
+The bundled catalogue is available immediately. You can create a new inventory and add supported items without importing `inventory.txt`, `items_game.txt`, or any other game file. For additional item definitions and paint-kit metadata, you may optionally load `items_game.txt` from a CS:GO Legacy installation and `csgo_english.txt` for localized names. These optional files are parsed locally in your browser. Steam CDN artwork is loaded from the bundled manifest.
 
 ## Player and GC configuration
 
@@ -69,7 +70,7 @@ Restart the GC after changing the setting. The GC validates the Origin and binds
 
 ## Legacy item catalogue and artwork
 
-The item catalogue is enriched from the user's local `items_game.txt` file. Item definitions inherit metadata from their schema prefabs, matching the way `csgo_gc` resolves item metadata. Paint-kit wear bounds are read from the same file. The schema is parsed entirely in the browser and is never uploaded.
+The built-in catalogue is the default source for adding supported items. An optional local `items_game.txt` import can enrich it with further item definitions, prefab metadata and paint-kit wear bounds. The schema is parsed entirely in the browser and is never uploaded.
 
 A bundled `public/icons.json` artwork index provides real Steam CDN images for supported item definitions, paint kits, stickers, agents, cases and other inventory items. The manifest structure is based on the reference data published by [mikkokko/csgo_invedit](https://github.com/mikkokko/csgo_invedit); image files remain hosted by Steam's static CDN. The editor falls back to category artwork when an item has no matching image.
 
