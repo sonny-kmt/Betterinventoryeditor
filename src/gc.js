@@ -87,13 +87,13 @@ export class GCConnection extends EventTarget {
     this.emit("change",[...this.items.values()]);
   }
   create(item){
-    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive||this.createQueue.length)throw Error("Wait for a synchronized connection before adding an item.");
+    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive||this.createQueue.length||this.deleteBatchActive)throw Error("Wait for a synchronized connection before adding an item.");
     const requestId=this.nextRequestId++;this.pendingCreate={requestId,assignedId:null,batch:false};this.ws.send(encodeCreate(item,requestId));
     this.createTimer=setTimeout(()=>{if(this.pendingCreate?.requestId===requestId){this.emit("uncertain",{action:"create",requestId});this.pendingCreate=null}},10000);return requestId;
   }
   createBatch(items){
     if(!Array.isArray(items)||!items.length)throw Error("A batch must contain at least one item.");
-    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive)throw Error("Wait for a synchronized connection before adding items.");
+    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive||this.deleteBatchActive)throw Error("Wait for a synchronized connection before adding items.");
     this.createQueue=items.slice();this.batchActive=true;this.pumpCreateQueue();return items.length;
   }
   pumpCreateQueue(){
