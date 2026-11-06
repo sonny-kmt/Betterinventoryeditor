@@ -118,7 +118,21 @@ let activeWeapon=null,activeSkins=[],selectedSkin=null;
 const isSkinBase=x=>!!x&&["rifles","snipers","smgs","shotguns","machineguns","pistols","knives","gloves"].includes(x.category);
 const isSouvenir=x=>/souvenir/i.test(String(x.containerType||"")+" "+String(x.name||""));
 const isCase=x=>!isSouvenir(x)&&(!x.containerType||/case/i.test(x.containerType)||/case/i.test(x.name||""));
+const agentTeam=x=>{const raw=JSON.stringify(x.team??x.team_name??x.teamName??x.team_id??"").toLowerCase();if(/counter.?terror|counter.?strike|ct_agents|ct-agent/.test(raw))return "ct";if(/terrorist|t_agents|t-agent/.test(raw))return "t";return ""};
+const agentTypes=[{id:"ct-agents",name:"CT Agents",description:"Counter-Terrorist agents"},{id:"t-agents",name:"T Agents",description:"Terrorist agents"}];
+const randomItem=items=>items.length?items[Math.floor(Math.random()*items.length)]:null;
+const tileArtwork=(id,subcategory=null)=>{
+ let candidates=[];
+ if(id==="weapons"&&!subcategory){const ak=allCatalogItems().find(x=>x.category==="rifles"&&/^ak-?47\\b/i.test(x.name));return ak?catalogImage(ak.id,ak):""}
+ if(id==="agents"&&subcategory)candidates=itemsFor(id,subcategory);
+ else if(subcategory)candidates=itemsFor(id,subcategory);
+ else candidates=itemsFor(id);
+ const item=randomItem(candidates.filter(x=>catalogImage(x.id,x)));
+ return item?catalogImage(item.id,item):"";
+};
 const itemsFor=(category,subcategory)=>allCatalogItems().filter(x=>{
+ if(category==="agents"){if(!subcategory)return x.category==="agents";return x.category==="agents"&&agentTeam(x)===(subcategory==="ct-agents"?"ct":"t")}
+
  if(category==="weapons")return !!subcategory&&(subcategory==="equipment"?(x.category==="other"&&String(x.className||"").startsWith("weapon_")):x.category===subcategory);
  if(category==="cases")return x.category==="cases"&&isCase(x);
  if(category==="souvenir")return x.category==="cases"&&isSouvenir(x);
@@ -128,12 +142,12 @@ const itemsFor=(category,subcategory)=>allCatalogItems().filter(x=>{
  }
  return x.category===category;
 });
-const tile=(item,count)=>'<button class="category-tile" data-category-tile="'+esc(item.id)+'"><span class="category-icon">'+item.icon+'</span><b>'+esc(item.name)+'</b><small>'+esc(item.description||"Browse "+item.name.toLowerCase())+'</small><span class="category-count">'+count+' items</span><span class="category-arrow">›</span></button>';
+const tile=(item,count,parent=null)=>{const art=tileArtwork(parent||item.id,parent?item.id:null);return '<button class="category-tile" data-category-tile="'+esc(item.id)+'"><span class="category-icon">'+(art?'<img src="'+esc(art)+'" alt="" loading="lazy" onerror="this.remove()">':'<span class="category-art-fallback"></span>')+'</span><b>'+esc(item.name)+'</b><small>'+esc(item.description||"Browse "+item.name.toLowerCase())+'</small><span class="category-count">'+count+' items</span><span class="category-arrow">›</span></button>'};
 const renderBrowse=()=>{
  const q=search.value.trim().toLowerCase(),all=allCatalogItems();
  const crumb=[];
  if(currentCategory){const root=rootTypes.find(x=>x.id===currentCategory);if(root)crumb.push(root.name)}
- if(currentSubcategory){const sub=[...weaponTypes,...extraTypes].find(x=>x.id===currentSubcategory);if(sub)crumb.push(sub.name)}
+ if(currentSubcategory){const sub=[...weaponTypes,...extraTypes,...agentTypes].find(x=>x.id===currentSubcategory);if(sub)crumb.push(sub.name)}
  $("#catalog-breadcrumb").innerHTML=(currentCategory?'<button class="breadcrumb-back" data-browse-back="1">← '+(currentSubcategory?"Back to "+(rootTypes.find(x=>x.id===currentCategory)?.name||"category"):"All categories")+'</button>':"")+'<span>'+(q?"Search results":crumb.join(" / ")||"Choose a category")+'</span>';
  $("#catalog-categories").hidden=!!q;
  $("#catalog-results").hidden=false;
@@ -147,9 +161,9 @@ const renderBrowse=()=>{
   $("#catalog-results").innerHTML='<div class="catalog-hint">Select a category above to browse its items.</div>';
   return;
  }
- if((currentCategory==="weapons"||currentCategory==="extras")&&!currentSubcategory){
-  const subs=currentCategory==="weapons"?weaponTypes:extraTypes;
-  $("#catalog-categories").innerHTML=subs.map(x=>tile(x,itemsFor(currentCategory,x.id).length)).join("");
+ if((currentCategory==="weapons"||currentCategory==="extras"||currentCategory==="agents")&&!currentSubcategory){
+  const subs=currentCategory==="weapons"?weaponTypes:currentCategory==="agents"?agentTypes:extraTypes;
+  $("#catalog-categories").innerHTML=subs.map(x=>tile(x,itemsFor(currentCategory,x.id).length,currentCategory)).join("");
   $("#catalog-results").innerHTML='<div class="catalog-hint">Choose a subcategory to see the available items.</div>';
   return;
  }
