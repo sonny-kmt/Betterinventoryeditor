@@ -56,7 +56,7 @@ export const encodeCreate=(item,requestId)=>encodeItem(CMD.CREATE,item,uint32(re
 export const encodeModify=item=>encodeItem(CMD.MODIFY,item,item.lowId);
 export function encodeDestroy(lowId){const w=new Writer(8);w.u32(CMD.DESTROY);w.u32(lowId);return w.finish()}
 export class GCConnection extends EventTarget {
-  constructor(){super();this.ws=null;this.items=new Map();this.ready=false;this.version=null;this.nextRequestId=1;this.pendingCreate=null;this.pendingDelete=null;this.createTimer=null;this.deleteTimer=null;this.timeoutTimer=null;this.status="Disconnected"}
+  constructor(){super();this.ws=null;this.items=new Map();this.ready=false;this.version=null;this.nextRequestId=1;this.pendingCreate=null;this.pendingDelete=null;this.createQueue=[];this.batchActive=false;this.createTimer=null;this.deleteTimer=null;this.timeoutTimer=null;this.status="Disconnected"}
   emit(type,detail){this.dispatchEvent(new CustomEvent(type,{detail}))}
   connect(){
     this.disconnect(false);this.status="Connecting";this.emit("status",this.status);
@@ -66,7 +66,7 @@ export class GCConnection extends EventTarget {
     ws.onopen=()=>{if(this.ws===ws){this.status="Waiting for inventory";this.emit("status",this.status)}};
     ws.onmessage=e=>{if(this.ws!==ws)return;try{this.receive(parseMessage(e.data))}catch(err){this.fail(err.message)}};
     ws.onerror=()=>{if(this.ws===ws)this.fail("Connection failed. Check that csgo_gc is running and inventory_editor_origin matches this website exactly.")};
-    ws.onclose=e=>{if(this.ws===ws){this.clearTimers();this.ws=null;this.ready=false;this.items.clear();this.status="Disconnected";this.emit("status",this.status);this.emit("close",{code:e.code})}};
+    ws.onclose=e=>{if(this.ws===ws){this.clearTimers();this.ws=null;this.ready=false;this.items.clear();this.pendingCreate=null;this.pendingDelete=null;this.createQueue=[];this.batchActive=false;this.status="Disconnected";this.emit("status",this.status);this.emit("close",{code:e.code})}};
   }
   receive(commands){
     if(this.version===null){if(commands.length!==1||commands[0].type!=="protocol")throw Error("GC did not send protocol information.");if(commands[0].version!==1)throw Error("Unsupported GC protocol version "+commands[0].version+".");this.version=1;return}
@@ -79,7 +79,7 @@ export class GCConnection extends EventTarget {
       else if(c.type==="setId"&&this.pendingCreate?.requestId===c.requestId)this.pendingCreate.assignedId=c.lowId;
     }
     if(this.pendingCreate&&this.pendingCreate.assignedId!=null&&this.items.has(this.pendingCreate.assignedId)){
-      clearTimeout(this.createTimer);this.emit("created",{requestId:this.pendingCreate.requestId,lowId:this.pendingCreate.assignedId});this.pendingCreate=null;
+      const completed=this.pendingCreate;clearTimeout(this.createTimer);this.emit("created",{requestId:completed.requestId,lowId:completed.assignedId});this.pendingCreate=null;if(completed.batch)this.pumpCreateQueue();
     }
     if(this.pendingDelete&&!this.items.has(this.pendingDelete.lowId)){
       clearTimeout(this.deleteTimer);this.emit("deleted",{lowId:this.pendingDelete.lowId});this.pendingDelete=null;
@@ -87,18 +87,30 @@ export class GCConnection extends EventTarget {
     this.emit("change",[...this.items.values()]);
   }
   create(item){
-    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete)throw Error("Wait for a synchronized connection before adding an item.");
-    const requestId=this.nextRequestId++;this.pendingCreate={requestId,assignedId:null};this.ws.send(encodeCreate(item,requestId));
+    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive||this.createQueue.length)throw Error("Wait for a synchronized connection before adding an item.");
+    const requestId=this.nextRequestId++;this.pendingCreate={requestId,assignedId:null,batch:false};this.ws.send(encodeCreate(item,requestId));
     this.createTimer=setTimeout(()=>{if(this.pendingCreate?.requestId===requestId){this.emit("uncertain",{action:"create",requestId});this.pendingCreate=null}},10000);return requestId;
+  }
+  createBatch(items){
+    if(!Array.isArray(items)||!items.length)throw Error("A batch must contain at least one item.");
+    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive)throw Error("Wait for a synchronized connection before adding items.");
+    this.createQueue=items.slice();this.batchActive=true;this.pumpCreateQueue();return items.length;
+  }
+  pumpCreateQueue(){
+    if(!this.batchActive||this.pendingCreate)return;
+    if(!this.createQueue.length){this.batchActive=false;this.emit("batchComplete",{});return}
+    const item=this.createQueue.shift(),requestId=this.nextRequestId++;
+    this.pendingCreate={requestId,assignedId:null,batch:true};this.ws.send(encodeCreate(item,requestId));
+    this.createTimer=setTimeout(()=>{if(this.pendingCreate?.requestId===requestId){const remaining=this.createQueue.length;this.createQueue=[];this.pendingCreate=null;this.batchActive=false;this.emit("uncertain",{action:"create",requestId,batch:true,remaining})}},10000);
   }
   modify(item){if(!this.ready||this.ws?.readyState!==WebSocket.OPEN)throw Error("Not connected to the GC.");this.ws.send(encodeModify(item))}
   destroy(lowId){
-    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||!this.items.has(lowId))throw Error("Cannot remove this item until the live inventory is synchronized.");
+    if(!this.ready||this.ws?.readyState!==WebSocket.OPEN||this.pendingCreate||this.pendingDelete||this.batchActive||this.createQueue.length||!this.items.has(lowId))throw Error("Cannot remove this item until the live inventory is synchronized.");
     this.pendingDelete={lowId};this.ws.send(encodeDestroy(lowId));
     this.deleteTimer=setTimeout(()=>{if(this.pendingDelete?.lowId===lowId){this.emit("uncertain",{action:"delete",lowId});this.pendingDelete=null}},10000);
   }
   clearTimers(){clearTimeout(this.timeoutTimer);clearTimeout(this.createTimer);clearTimeout(this.deleteTimer)}
   fail(message){this.emit("error",message);this.disconnect();this.status="Error";this.emit("status",this.status)}
-  disconnect(close=true){this.clearTimers();const ws=this.ws;this.ws=null;this.ready=false;this.version=null;this.items.clear();this.pendingCreate=null;this.pendingDelete=null;if(close&&ws&&ws.readyState<2)ws.close();if(close){this.status="Disconnected";this.emit("status",this.status)}}
+  disconnect(close=true){this.clearTimers();const ws=this.ws;this.ws=null;this.ready=false;this.version=null;this.items.clear();this.pendingCreate=null;this.pendingDelete=null;this.createQueue=[];this.batchActive=false;if(close&&ws&&ws.readyState<2)ws.close();if(close){this.status="Disconnected";this.emit("status",this.status)}}
   get connected(){return this.ready&&this.ws?.readyState===WebSocket.OPEN}
 }

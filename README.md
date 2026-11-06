@@ -30,7 +30,7 @@ Every push to `main` will trigger a new Vercel deployment if the repository is c
 - Export a new `inventory.txt` without uploading the source file.
 - Preserve unedited/unknown KeyValues fields from the imported inventory.
 
-The built-in catalogue is a starter list, not a complete official item schema. For a much broader catalogue, open **Settings** and load `items_game.txt` from your CS:GO Legacy installation. Optionally load `csgo_english.txt` to resolve localized item names. The schema is parsed locally in your browser. Paint-kit definitions are read from the same schema and can be used when creating items. You can also optionally load the reference editor's `icons.json` manifest to show Steam CDN artwork for supported definitions and paint variants: [icons.json](https://github.com/mikkokko/csgo_invedit/blob/master/icons.json).
+The built-in catalogue is a starter list, not a complete official item schema. For a much broader catalogue, open **Settings** and load `items_game.txt` from your CS:GO Legacy installation. Optionally load `csgo_english.txt` to resolve localized item names. The schema is parsed locally in your browser. Paint-kit definitions are read from the same schema and can be used when creating items. Steam CDN artwork is bundled and loaded automatically; the manifest can be overridden in Settings if needed.
 
 ## Player and GC configuration
 
@@ -65,3 +65,16 @@ Restart the GC after changing the setting. The GC validates the Origin and binds
 - No account, database or application backend is used.
 - Keep backups of your original files and test exports before using them in-game.
 - The editor does not modify your game installation directly.
+
+
+## Legacy item catalogue and artwork
+
+The item catalogue is enriched from the user's local `items_game.txt` file. Item definitions inherit metadata from their schema prefabs, matching the way `csgo_gc` resolves item metadata. Paint-kit wear bounds are read from the same file. The schema is parsed entirely in the browser and is never uploaded.
+
+A bundled `public/icons.json` artwork index provides real Steam CDN images for supported item definitions, paint kits, stickers, agents, cases and other inventory items. The manifest structure is based on the reference data published by [mikkokko/csgo_invedit](https://github.com/mikkokko/csgo_invedit); image files remain hosted by Steam's static CDN. The editor falls back to category artwork when an item has no matching image.
+
+## Automatic case keys
+
+The Add Item dialog can automatically add a matching key when a case/container is selected. The setting is enabled by default and can be switched off in **Settings**. The editor prefers a specific key whose schema name matches the case (for example, event-specific keys), then falls back to the generic CS:GO Case Key if that definition exists. It does not invent a key when no matching or generic key definition is present.
+
+Offline mode adds both items to the local inventory export. Live mode queues the case and key as separate protocol-v1 create requests and waits for the GC to confirm each assigned item ID before sending the next request. This respects the one-pending-create flow in the current editor connection implementation.

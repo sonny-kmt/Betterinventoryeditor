@@ -11,3 +11,5 @@
 .custom-def{display:flex;gap:8px;margin-top:10px}.custom-def input{flex:1;min-width:0;background:#101722;border:1px solid #293447;border-radius:8px;padding:10px;color:#eef2fb;outline:none}
 
 .item-thumb{max-width:82%;max-height:108px;object-fit:contain;filter:drop-shadow(0 8px 14px #0009)}
+
+.catalog-icon img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 3px 6px #0008)}
