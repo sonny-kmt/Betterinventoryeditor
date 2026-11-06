@@ -54,3 +54,16 @@
 
 /* Keep catalogue art true to CS:GO assets; no emoji stand-ins. */
 .art-missing{width:82%;height:90px}.catalog-icon img{width:100%;height:100%;object-fit:contain}.case-quantity{margin:14px 0;padding:13px 14px;background:#101722;border:1px solid #293447;border-radius:9px}.case-quantity[hidden]{display:none}.case-quantity input{background:#0b111b;border:1px solid #34435b;border-radius:8px;color:#eef2fb;padding:12px;width:100%;margin-top:7px}
+
+
+/* Inventory multi-select and bulk actions */
+.bulk-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-5px 0 18px;padding:14px 16px;background:#172238;border:1px solid #35496d;border-radius:11px;color:#dce6fa;font-size:13px}
+.bulk-actions>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bulk-actions b{color:#aebeff;font-size:15px}
+.btn.danger{background:#a93c4b;border:1px solid #c05260;color:#fff}
+.btn.danger:hover{background:#c34a59}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.item-select{display:flex;align-items:center;gap:8px;margin:0 0 10px;color:#cbd6e9;font-size:11px;cursor:pointer}
+.item-select input{width:17px;height:17px;accent-color:#8194ff}
+.item-selected{border-color:#7188ff;box-shadow:0 0 0 1px #7188ff55,0 8px 25px #536cff18}
+@media(max-width:640px){.bulk-actions{align-items:flex-start;flex-direction:column}.bulk-actions>div{width:100%}.bulk-actions .btn{flex:1}}
