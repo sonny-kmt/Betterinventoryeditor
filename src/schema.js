@@ -36,9 +36,7 @@ function labelWords(item){
   return new Set(label.replace(/[^a-z0-9]+/g," ").trim().split(/\s+/).filter(x=>x&&!STOP.has(x)));
 }
 function isGenericKey(item){
-  const label=[item?.name,item?.itemNameToken,item?.className].filter(Boolean).join(" ").toLowerCase();
-  const normalized=label.replace(/[^a-z0-9]+/g," ").trim();
-  return Number(item?.id)===1203||/\bcs go case key\b/.test(normalized)||/\bcsgo (?:crate|case) key\b/.test(normalized);
+  return Number(item?.id)===1203;
 }
 export function parseLegacySchema(text,{definitions=new Map(),translations={}}={}){
   const root=parseKV(text),data=get(root,"items_game")||root,rawItems=get(data,"items");
