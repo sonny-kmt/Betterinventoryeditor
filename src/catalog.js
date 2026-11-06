@@ -1,7 +1,7 @@
 const BASE="https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/";
 const SOURCES={crates:"crates.json",keys:"keys.json",musicKits:"music_kits.json",stickers:"stickers.json",agents:"agents.json",patches:"patches.json",baseWeapons:"base_weapons.json",skins:"skins.json"};
 const imageOk=value=>typeof value==="string"&&/^https:\/\/(community\.akamai\.steamstatic\.com\/economy\/image\/|cdn\.steamstatic\.com\/apps\/730\/icons\/)/.test(value);
-const number=value=>Number.isInteger(Number(value))?Number(value):null;
+const number=value=>value===null||value===undefined||value===""?null:Number.isInteger(Number(value))&&Number(value)>0?Number(value):null;
 const indexFromId=(value,prefix)=>{const match=String(value||"").match(new RegExp("^"+prefix+"-(\\d+)$"));return match?Number(match[1]):null};
 const row=(id,name,category,extra={})=>({id:Number(id),name:String(name||"Unknown item"),category,catalogKey:extra.catalogKey||"def:"+id,...extra});
 export async function loadOnlineCatalogue(fetcher=fetch){
